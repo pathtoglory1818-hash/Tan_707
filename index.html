@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#FF4081">
+    <title>TAN Chats - Modern Chat Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js" type="module"></script>
+    
+    <style>
+        :root {
+            --primary-color: #FF4081;
+            --primary-gradient: linear-gradient(135deg, #FF4081, #FF7EB3);
+            --background-color: #0b0f19;
+            --container-bg: rgba(22, 28, 45, 0.6);
+            --container-solid: #161c2d;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --bubble-bg-me: #FF4081;
+            --bubble-gradient-me: linear-gradient(135deg, #FF4081, #f42b6d);
+            --bubble-text-me: #ffffff;
+            --bubble-bg-other: rgba(255, 255, 255, 0.07);
+            --danger-color: #ff4d4d;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overscroll-behavior: none;
+            background-color: var(--background-color);
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #3D0C20, transparent 40%),
+                        radial-gradient(circle at bottom left, #050A1F, transparent 40%),
+                        #0b0f19;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            overflow: hidden;
+            position: fixed;
+        }
+
+        /* Ambient Glassmorphic Wrapper for Desktops */
+        #desktop-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+        }
+
+        /* Main Mobile Container */
+        #app-container {
+            width: 100%;
+            height: 100dvh;
+            background: rgba(13, 17, 28, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: var(--glass-border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (min-width: 481px) {
+            #app-container {
+                max-width: 420px;
+                height: 90vh;
+                max-height: 850px;
+                border-radius: 36px;
+                border: 4px solid rgba(255, 255, 255, 0.15);
+            }
+        }
+
+        /* Generic Utilities */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-2 { gap: 0.5rem; }
+        .p-4 { padding: 1.2rem; }
+        .m-2 { margin: 0.5rem; }
+        .w-full { width: 100%; }
+        
+        button {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+        }
+        button:active { transform: scale(0.92); }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: var(--bubble-text-me);
+            padding: 14px 24px;
+            border-radius: 28px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px -6px rgba(255, 64, 129, 0.6);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:active { 
+            opacity: 0.9; 
+            transform: translateY(2px) scale(0.98); 
+            box-shadow: 0 4px 10px -4px rgba(255, 64, 129, 0.6); 
+        }
+        
+        .btn-danger { 
+            background-color: var(--danger-color); 
+            color: white; 
+            box-shadow: 0 8px 20px -6px rgba(255, 77, 77, 0.6); 
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background-color: rgba(0,0,0,0.3);
+            color: var(--text-color);
+            margin-bottom: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:focus { 
+            border-color: var(--primary-color); 
+            background-color: rgba(0,0,0,0.5); 
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.2), inset 0 2px 4px rgba(0,0,0,0.2); 
+        }
+
+        /* Headers */
+        .header {
+            flex-shrink: 0;
+            padding: calc(16px + env(safe-area-inset-top)) 20px 16px 20px;
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            border-bottom: var(--glass-border);
+        }
+
+        .header h1 { 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            letter-spacing: -0.5px; 
+            background: var(--primary-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .header-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .header-icon-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-pic {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #2a2a2a;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid rgba(255, 64, 129, 0.4);
+        }
+        .profile-pic:active { transform: scale(0.9); }
+
+        /* Views */
+        .view {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 75px;
+            scroll-behavior: smooth;
+        }
+
+        .view::-webkit-scrollbar { display: none; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            flex-shrink: 0;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 65px;
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: var(--glass-border);
+            z-index: 10;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            gap: 6px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item.active { color: var(--primary-color); transform: translateY(-3px); }
+        .nav-item i { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .nav-item.active i { transform: scale(1.2); }
+        
+        .nav-item .badge {
+            position: absolute;
+            top: -2px;
+            margin-left: 20px;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            animation: popBadge 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 5px rgba(255, 77, 77, 0.5);
+        }
+
+        @keyframes popBadge {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Lists (Contacts, Requests) */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: slideInRight 0.4s ease-out both;
+        }
+        
+        .list-item:nth-child(1) { animation-delay: 0.05s; }
+        .list-item:nth-child(2) { animation-delay: 0.1s; }
+        .list-item:nth-child(3) { animation-delay: 0.15s; }
+        .list-item:nth-child(4) { animation-delay: 0.2s; }
+        
+        .list-item:active { background-color: rgba(255,255,255,0.05); transform: scale(0.98); }
+        .list-item img { margin-right: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .list-item .info { flex: 1; }
+        .list-item .name { font-weight: 500; font-size: 1.05rem; margin-bottom: 2px; }
+        .list-item .sub { font-size: 0.8rem; color: var(--text-muted); }
+        .unread-badge { 
+            background: var(--primary-gradient); 
+            color: var(--bubble-text-me); 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.4); 
+            animation: pulseBadge 2s infinite; 
+        }
+
+        @keyframes pulseBadge {
+            0% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(255, 64, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 64, 129, 0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Modals & Overlays */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 15, 25, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .overlay.active { transform: translateY(0); opacity: 1; pointer-events: all; }
+        
+        /* Slide Menu (Profile) */
+        #side-menu {
+            position: absolute;
+            top: 0; left: 0; width: 78%; height: 100%;
+            background-color: var(--container-solid);
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: calc(20px + env(safe-area-inset-top)) 20px 20px 20px;
+        }
+        #side-menu.active { transform: translateX(0); }
+        #menu-backdrop {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 99;
+            display: none;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        #menu-backdrop.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Chat Screen */
+        #chat-screen { 
+            z-index: 40; 
+            background: rgba(11, 15, 25, 0.9); 
+            transform: translateX(100%);
+        }
+        #chat-screen.active { transform: translateX(0); }
+        
+        .chat-header {
+            flex-shrink: 0;
+            padding-top: calc(12px + env(safe-area-inset-top));
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: var(--glass-border);
+            position: relative;
+            z-index: 100;
+        }
+        .chat-actions { margin-left: auto; display: flex; gap: 16px; }
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 78%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform-origin: bottom left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .msg-me {
+            background: var(--bubble-gradient-me);
+            color: var(--bubble-text-me);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            transform-origin: bottom right;
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.3);
+        }
+        .msg-other {
+            background-color: var(--bubble-bg-other);
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: var(--glass-border);
+        }
+        
+        .msg-meta {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 0.65rem;
+            opacity: 0.8;
+        }
+        .msg-time {
+            font-size: 0.65rem;
+        }
+        .msg-ticks {
+            display: flex;
+            align-items: center;
+        }
+
+        .msg-sender-name {
+            font-size: 0.7rem; color: #ff7eb3; margin-bottom: 4px; font-weight: 600; display: block; letter-spacing: 0.5px;
+        }
+        
+        /* Reply Styles */
+        .quoted-msg {
+            background: rgba(0,0,0,0.15);
+            border-left: 3px solid var(--primary-color);
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+        .msg-me .quoted-msg {
+            background: rgba(0,0,0,0.2);
+            border-left-color: #fff;
+        }
+        #reply-preview {
+            flex-shrink: 0;
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 10px 16px;
+            border-left: 4px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: var(--glass-border);
+            animation: slideUp 0.2s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .selectable-item {
+            display: flex; align-items: center; padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .selectable-item:active { transform: scale(0.98); }
+        .selectable-item.selected { background-color: rgba(255, 64, 129, 0.1); }
+        .selectable-item .checkbox {
+            width: 22px; height: 22px; border: 2px solid var(--text-muted);
+            border-radius: 6px; margin-left: auto; display: flex;
+            justify-content: center; align-items: center;
+            transition: all 0.2s ease;
+        }
+        .selectable-item.selected .checkbox {
+            background-color: var(--primary-color); border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(255, 64, 129, 0.4);
+        }
+        .selectable-item.selected .checkbox::after {
+            content: '✓'; color: var(--bubble-text-me); font-size: 14px; font-weight: bold;
+        }
+        .chat-input-area {
+            flex-shrink: 0;
+            padding: 12px 16px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            background: var(--container-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: var(--glass-border);
+        }
+        .chat-input-area input { margin-bottom: 0; border-radius: 24px; flex: 1; padding: 14px 20px;}
+        .send-btn {
+            background: var(--primary-gradient);
+            color: var(--bubble-text-me);
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.5);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .send-btn:active { transform: scale(0.85); }
+        .send-btn i { margin-left: -2px; transition: transform 0.2s; }
+        .send-btn:active i { transform: translateX(4px); }
+
+        /* Toast */
+        #toast {
+            position: absolute; top: 30px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(22, 28, 45, 0.95); backdrop-filter: blur(10px); border: var(--glass-border);
+            color: #fff; padding: 12px 24px; border-radius: 30px;
+            font-size: 0.95rem; font-weight: 500; z-index: 200; opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .typing-indicator { 
+            font-size: 0.8rem; color: var(--primary-color); height: 15px; margin-left: 10px; font-weight: 500;
+            animation: pulseText 1.5s infinite;
+        }
+        
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        #auth-screen { 
+            z-index: 80; 
+            background: radial-gradient(circle at top right, #3D0C20, transparent 40%),
+                        radial-gradient(circle at bottom left, #050A1F, transparent 40%),
+                        #0b0f19;
+            padding: calc(40px + env(safe-area-inset-top)) 20px 40px 20px; 
+            justify-content: center;
+        }
+
+        #login-screen { 
+            z-index: 90; 
+            background: #ffe4e6;
+            padding: calc(40px + env(safe-area-inset-top)) 20px 40px 20px; 
+            justify-content: center;
+        }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); animation: fadeIn 0.5s ease; }
+        .empty-state i { transition: transform 0.5s ease; }
+        .empty-state:hover i { transform: scale(1.1) translateY(-5px); color: var(--primary-color); opacity: 0.8; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* The Pulse Animation */
+        @keyframes pink-glow {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.7);
+            }
+            70% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 15px rgba(255, 105, 180, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 105, 180, 0);
+            }
+        }
+
+        button:active, 
+        .list-item:active, 
+        .selectable-item:active, 
+        .nav-item:active, 
+        .profile-pic:active {
+            animation: pink-glow 0.4s ease-out !important;
+            border-radius: inherit;
+        }
+
+        /* Telegram FAB */
+        .telegram-fab {
+            position: absolute;
+            bottom: calc(85px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #2AABEE, #229ED9);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(42, 171, 238, 0.4);
+            z-index: 35;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            text-decoration: none;
+        }
+        .telegram-fab:active {
+            transform: scale(0.85);
+            box-shadow: 0 2px 8px rgba(42, 171, 238, 0.6);
+        }
+
+        /* Copy Button Styles */
+        .btn-copy {
+            background: rgba(255,255,255,0.06);
+            border: var(--glass-border);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-copy:active {
+            background: rgba(255,255,255,0.12);
+        }
+    </style>
+</head>
+<body>
+
+<div id="desktop-wrapper">
+<div id="app-container">
+    
+    <!-- Toast Notification -->
+    <div id="toast">Message</div>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="overlay flex-col active" style="z-index: 1000; background: radial-gradient(circle at top right, #3D0C20, transparent 40%), radial-gradient(circle at bottom left, #050A1F, transparent 40%), #0b0f19; justify-content: center; align-items: center;">
+        <dotlottie-wc src="https://lottie.host/24935d1b-e76d-4608-b980-daf0f39c7d77/Tb4j8G3pxT.lottie" style="width: 200px; height: 200px;" autoplay loop></dotlottie-wc>
+        <h1 style="font-size: 2.8rem; color: var(--primary-color); margin-top: -20px; letter-spacing: -1px; font-weight: 700;">TAN Chats</h1>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="overlay flex-col">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <dotlottie-wc src="https://lottie.host/24935d1b-e76d-4608-b980-daf0f39c7d77/Tb4j8G3pxT.lottie" style="width: 250px; height: 250px; margin: 0 auto; margin-top: -30px;" autoplay loop></dotlottie-wc>
+            <h1 style="font-size: 2.8rem; color: var(--primary-color); margin-top: -10px; letter-spacing: -1px; font-weight: 700;">TAN Chats</h1>
+            <p style="color: #666666; font-size: 1.1rem;">Connect with friends instantly.</p>
+        </div>
+        
+        <div id="login-error" class="hidden" style="background: rgba(255, 77, 77, 0.1); color: var(--danger-color); border: 1px solid var(--danger-color); padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; text-align: center; line-height: 1.4;"></div>
+
+        <input type="email" id="login-email" placeholder="Email Address" style="margin-bottom: 12px; background: rgba(255,255,255,0.6); color: #333333; border: 1px solid rgba(0,0,0,0.1);">
+        <input type="password" id="login-password" placeholder="Password" style="margin-bottom: 8px; background: rgba(255,255,255,0.6); color: #333333; border: 1px solid rgba(0,0,0,0.1);">
+        
+        <div style="text-align: right; width: 100%; margin-bottom: 20px; padding-right: 4px;">
+            <button id="btn-forgot-password" style="color: var(--primary-color); font-size: 0.85rem; font-weight: 500; transition: opacity 0.2s;">Forgot Password?</button>
+        </div>
+        
+        <div class="flex gap-2" style="width: 100%; margin-bottom: 16px;">
+            <button class="btn-primary" id="btn-email-signin" style="margin-top: 0; flex: 1;">Sign In</button>
+            <button class="btn-primary" id="btn-email-signup" style="margin-top: 0; flex: 1; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); box-shadow: none; color: #333333;">Sign Up</button>
+        </div>
+
+        <div style="text-align: center; color: #666666; margin: 10px 0 25px 0; font-size: 0.85rem; position: relative;">
+            <span style="background: #ffe4e6; padding: 0 10px; position: relative; z-index: 1; border-radius: 8px;">OR</span>
+            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.1); z-index: 0;"></div>
+        </div>
+
+        <button class="btn-primary" id="btn-anon-login" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 10px; color: #333333;">
+            <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+            Continue Anonymously
+        </button>
+    </div>
+
+    <!-- Auth / Profile Setup Screen -->
+    <div id="auth-screen" class="overlay flex-col">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-size: 2rem; color: var(--text-color); margin-top: 10px; font-weight: 600;">Profile Setup</h1>
+            <p style="color: var(--text-muted);">Complete your profile to continue</p>
+        </div>
+        
+        <div id="auth-error" class="hidden" style="background: rgba(255, 77, 77, 0.1); color: var(--danger-color); border: 1px solid var(--danger-color); padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.85rem; text-align: center; line-height: 1.4;"></div>
+
+        <input type="text" id="profile-name" placeholder="Your Name (Max 20 chars)" maxlength="20">
+        <input type="text" id="profile-bio" placeholder="Short Bio (Max 100 chars)" maxlength="100">
+        <input type="text" id="profile-emoji" placeholder="Choose 1 Emoji for your DP" maxlength="2">
+        <button class="btn-primary" id="btn-save-profile">Join TAN Chats</button>
+    </div>
+
+    <!-- Main Header -->
+    <div class="header">
+        <div class="flex items-center" style="gap: 12px;">
+            <img src="" alt="Profile" class="profile-pic" id="my-profile-pic">
+            <h1 id="app-title">TAN Chats</h1>
+        </div>
+        <div class="flex items-center" style="gap: 16px;">
+            <button id="btn-create-group-modal" class="header-icon-btn"><i data-lucide="users" style="width: 20px; height: 20px;"></i></button>
+            <button id="btn-add-friend-modal" class="header-icon-btn"><i data-lucide="user-plus" style="width: 20px; height: 20px;"></i></button>
+        </div>
+    </div>
+
+    <!-- View: Contacts (Home) -->
+    <div id="view-contacts" class="view">
+        <div id="contacts-list"></div>
+        <div id="contacts-empty" class="empty-state hidden">
+            <i data-lucide="users" style="width: 40px; height: 40px; opacity: 0.5; margin-bottom: 10px;"></i>
+            <p>No contacts yet.<br>Add a friend to start chatting!</p>
+        </div>
+        
+        <!-- Telegram Floating Button -->
+        <a href="https://t.me/tanchat_official" target="_blank" class="telegram-fab">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 2px; margin-top: 2px;">
+                <path d="M21.1406 2.85906C21.1406 2.85906 22.6406 2.25906 22.5406 3.55906C22.4406 4.35906 21.8406 8.05906 21.3406 12.0591L19.8406 20.8591C19.8406 20.8591 19.7406 21.9591 18.8406 22.0591C17.9406 22.1591 16.5406 21.2591 16.2406 21.0591L11.5406 16.5591L9.44063 18.5591C9.44063 18.5591 9.14063 18.8591 8.84062 18.8591C8.44062 18.8591 8.54063 18.4591 8.44063 18.1591L7.24063 12.8591L2.24062 11.2591C2.24062 11.2591 1.24063 10.9591 1.34062 10.1591C1.44062 9.35906 2.34062 8.95906 2.34062 8.95906L21.1406 2.85906Z" fill="white"/>
+            </svg>
+        </a>
+    </div>
+
+    <!-- View: Requests -->
+    <div id="view-requests" class="view hidden">
+        <div class="p-4" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <h2 style="font-size: 1.1rem; font-weight: 500;">Friend Requests</h2>
+        </div>
+        <div id="requests-list"></div>
+        <div id="requests-empty" class="empty-state hidden">
+            <i data-lucide="inbox" style="width: 40px; height: 40px; opacity: 0.5; margin-bottom: 10px;"></i>
+            <p>No pending requests.</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-target="view-contacts">
+            <i data-lucide="message-circle"></i>
+            <span>Chats</span>
+        </button>
+        <button class="nav-item" data-target="view-requests">
+            <i data-lucide="users"></i>
+            <span>Requests</span>
+            <div id="req-badge" class="badge hidden">0</div>
+        </button>
+    </div>
+
+    <!-- Add Friend Modal -->
+    <div id="add-friend-modal" class="overlay">
+        <div class="header">
+            <button id="close-add-friend"><i data-lucide="arrow-left"></i></button>
+            <h1>Add Friend</h1>
+            <div style="width: 24px;"></div>
+        </div>
+        <div class="p-4">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Enter your friend's 4-digit TAN ID (e.g., TAN-1234).</p>
+            <div class="flex gap-2">
+                <input type="text" id="search-uid" placeholder="TAN-XXXX" style="margin-bottom:0; text-transform: uppercase;">
+                <button class="btn-primary" id="btn-search-user" style="width: auto; margin-top:0;">Search</button>
+            </div>
+            <div id="search-result" class="m-2 flex-col items-center gap-3 hidden" style="margin-top: 30px; background: var(--container-bg); padding: 20px; border-radius: 16px; border: var(--glass-border);">
+                <img id="search-pic" src="" class="profile-pic" style="width: 60px; height: 60px;">
+                <h3 id="search-name">Name</h3>
+                <p id="search-bio" style="color: var(--text-muted); font-size: 0.8rem; text-align: center;"></p>
+                <button class="btn-primary" id="btn-send-request">Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="create-group-modal" class="overlay">
+        <div class="header">
+            <button id="close-create-group"><i data-lucide="arrow-left"></i></button>
+            <h1>New Group</h1>
+            <div style="width: 24px;"></div>
+        </div>
+        <div class="p-4" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            <input type="text" id="group-name" placeholder="Group Name (e.g., Family)" maxlength="30">
+            <h3 style="margin: 10px 0; font-size: 1rem; color: var(--text-muted);">Select Members</h3>
+            <div id="group-members-list" style="flex: 1; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Selectable contacts -->
+            </div>
+            <button class="btn-primary" id="btn-save-group" style="margin-top: auto;">Create Group</button>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="overlay">
+        <div class="header">
+            <button id="close-edit-profile"><i data-lucide="arrow-left"></i></button>
+            <h1>Edit Profile</h1>
+            <div style="width: 24px;"></div>
+        </div>
+        <div class="p-4" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <img id="edit-profile-preview" src="" class="profile-pic" style="width: 80px; height: 80px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            </div>
+            <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; padding-left: 4px;">Name</label>
+            <input type="text" id="edit-profile-name" placeholder="Your Name (Max 20 chars)" maxlength="20">
+            
+            <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; padding-left: 4px;">Bio</label>
+            <input type="text" id="edit-profile-bio" placeholder="Short Bio (Max 100 chars)" maxlength="100">
+            
+            <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; padding-left: 4px;">Emoji Avatar</label>
+            <input type="text" id="edit-profile-emoji" placeholder="Choose 1 Emoji for your DP" maxlength="2">
+            
+            <button class="btn-primary" id="btn-update-profile" style="margin-top: auto;">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Edit Group Modal -->
+    <div id="edit-group-modal" class="overlay">
+        <div class="header">
+            <button id="close-edit-group"><i data-lucide="arrow-left"></i></button>
+            <h1>Edit Group</h1>
+            <div style="width: 24px;"></div>
+        </div>
+        <div class="p-4" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <img id="edit-group-preview" src="" class="profile-pic" style="width: 80px; height: 80px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+            </div>
+            <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; padding-left: 4px;">Group Name</label>
+            <input type="text" id="edit-group-name-input" placeholder="Group Name" maxlength="30">
+
+            <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; padding-left: 4px;">Group Emoji</label>
+            <input type="text" id="edit-group-emoji-input" placeholder="Group Emoji (e.g., 👥)" maxlength="2">
+
+            <h3 style="margin: 15px 0 10px 0; font-size: 1rem; color: var(--text-muted);">Add New Members</h3>
+            <div id="edit-group-add-members-list" style="flex: 1; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Selectable contacts -->
+            </div>
+            <button class="btn-primary" id="btn-save-edit-group" style="margin-top: auto;">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Chat Screen Overlay -->
+    <div id="chat-screen" class="overlay">
+        <div class="chat-header">
+            <button id="close-chat"><i data-lucide="arrow-left"></i></button>
+            <img src="" id="chat-user-pic" class="profile-pic" style="width: 36px; height: 36px;">
+            <div class="flex-col">
+                <span id="chat-user-name" style="font-weight: 500;">Name</span>
+                <span id="chat-typing" class="typing-indicator hidden">typing...</span>
+            </div>
+            <div class="chat-actions" style="position: relative;">
+                <button id="btn-group-info" class="hidden"><i data-lucide="info" style="color: var(--text-color);"></i></button>
+                <button id="btn-chat-options"><i data-lucide="more-vertical" style="color: var(--text-color);"></i></button>
+                
+                <!-- 3-Dot Dropdown Menu -->
+                <div id="chat-options-menu" class="hidden" style="position: absolute; top: 100%; right: 0; margin-top: 10px; background: var(--container-solid); border: var(--glass-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 200; overflow: hidden; min-width: 180px;">
+                    <div style="padding: 12px 16px; border-bottom: var(--glass-border);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;">Chat Background</div>
+                        <div class="flex justify-between items-center" id="bg-options-container">
+                            <button class="bg-option" data-color="default" style="width: 22px; height: 22px; border-radius: 50%; background: #0b0f19; border: 2px solid var(--primary-color); box-shadow: 0 0 0 1px rgba(255,255,255,0.2);"></button>
+                            <button class="bg-option" data-color="#0a192f" style="width: 22px; height: 22px; border-radius: 50%; background: #0a192f; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(255,255,255,0.2);"></button>
+                            <button class="bg-option" data-color="#0f291e" style="width: 22px; height: 22px; border-radius: 50%; background: #0f291e; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(255,255,255,0.2);"></button>
+                            <button class="bg-option" data-color="#2d0a11" style="width: 22px; height: 22px; border-radius: 50%; background: #2d0a11; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(255,255,255,0.2);"></button>
+                            <button class="bg-option" data-color="#1a0b2e" style="width: 22px; height: 22px; border-radius: 50%; background: #1a0b2e; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(255,255,255,0.2);"></button>
+                        </div>
+                    </div>
+                    <button id="btn-clear-chat-me" class="selectable-item" style="width: 100%; border-bottom: var(--glass-border); justify-content: flex-start; padding: 12px 16px;">
+                        <i data-lucide="eraser" style="color: var(--text-color); margin-right: 12px; width: 18px; height: 18px;"></i>
+                        <span style="color: var(--text-color); font-weight: 500; font-size: 0.95rem;">Clear for me</span>
+                    </button>
+                    <button id="btn-clear-chat-everyone" class="selectable-item" style="width: 100%; border-bottom: none; justify-content: flex-start; padding: 12px 16px;">
+                        <i data-lucide="trash-2" style="color: var(--danger-color); margin-right: 12px; width: 18px; height: 18px;"></i>
+                        <span style="color: var(--danger-color); font-weight: 500; font-size: 0.95rem;">Clear for everyone</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Messages go here -->
+        </div>
+        
+        <!-- Reply Preview Box -->
+        <div id="reply-preview" class="hidden">
+            <div style="overflow: hidden;">
+                <div id="reply-preview-name" style="color: var(--primary-color); font-weight: bold; margin-bottom: 2px; font-size: 0.85rem;">Name</div>
+                <div id="reply-preview-text" style="color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; max-width: 70vw;">Message text</div>
+            </div>
+            <button id="cancel-reply" style="padding: 4px; margin-left: 10px;"><i data-lucide="x" style="width: 20px; height: 20px; color: var(--text-muted);"></i></button>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button id="btn-send-msg" class="send-btn"><i data-lucide="send" style="width: 20px; height: 20px; margin-left: -2px;"></i></button>
+        </div>
+    </div>
+
+    <!-- Message Specific Options Modal -->
+    <div id="msg-options-modal" class="overlay" style="justify-content: flex-end; background: rgba(0,0,0,0.6); padding: 0; z-index: 300;">
+        <div style="background: var(--container-solid); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0,0,0,0.5); border-top: var(--glass-border);">
+            <div style="width: 40px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 0 auto 15px auto;"></div>
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; text-align: center; color: var(--text-color);">Message Options</h3>
+            <button id="btn-msg-del-me" class="list-item" style="width: 100%; border: none; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.05);">
+                <i data-lucide="eraser" style="margin-right: 12px; color: var(--text-color); width: 20px;"></i>
+                <span style="color: var(--text-color); font-weight: 500;">Delete for me</span>
+            </button>
+            <button id="btn-msg-del-everyone" class="list-item" style="width: 100%; border: none; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; background: rgba(255,77,77,0.1);">
+                <i data-lucide="trash-2" style="margin-right: 12px; color: var(--danger-color); width: 20px;"></i>
+                <span style="color: var(--danger-color); font-weight: 500;">Delete for everyone</span>
+            </button>
+            <button id="btn-msg-cancel" class="list-item" style="width: 100%; border: none; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.1); justify-content: center;">
+                <span style="color: var(--text-color); font-weight: 500;">Cancel</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Side Menu -->
+    <div id="menu-backdrop"></div>
+    <div id="side-menu">
+        <div class="flex-col items-center gap-2" style="margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px;">
+            <img src="" id="menu-pic" class="profile-pic" style="width: 80px; height: 80px;">
+            <h2 id="menu-name" style="margin-top: 10px; font-weight: 600;">Name</h2>
+            <div class="flex items-center justify-center">
+                <p id="menu-id" style="color: var(--primary-color); font-weight: 600; font-size: 1.1rem;">TAN-XXXX</p>
+                <button id="btn-copy-id" class="btn-copy">Copy</button>
+            </div>
+            <p id="menu-bio" style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 4px;"></p>
+        </div>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
+            <button id="btn-edit-profile" class="list-item" style="width: 100%; border: none; padding: 10px 0;">
+                <i data-lucide="edit-3" style="margin-right: 16px; color: var(--text-color);"></i>
+                <span style="color: var(--text-color); font-weight: 500;">Edit Profile</span>
+            </button>
+            <button id="btn-toggle-fullscreen" class="list-item" style="width: 100%; border: none; padding: 10px 0;">
+                <i data-lucide="maximize" id="fullscreen-icon" style="margin-right: 16px; color: var(--text-color);"></i>
+                <span style="color: var(--text-color); font-weight: 500;">Toggle Fullscreen</span>
+            </button>
+            <button id="btn-logout" class="list-item" style="width: 100%; border: none; padding: 10px 0;">
+                <i data-lucide="log-out" style="margin-right: 16px; color: var(--danger-color);"></i>
+                <span style="color: var(--danger-color); font-weight: 500;">Logout</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Dynamic Setup with System Variables & Strict Fallbacks ---
+    let firebaseConfig;
+    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+        try {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } catch(e) {
+            console.error("Failed to parse dynamic config. Falling back.");
+        }
+    }
+    
+    if (!firebaseConfig) {
+        firebaseConfig = {
+            apiKey: "AIzaSyCu-vPXhqD9lYnIuJIB9o3wkALlGxQbBP0",
+            authDomain: "tan-chat-2e451.firebaseapp.com",
+            databaseURL: "https://tan-chat-2e451-default-rtdb.firebaseio.com",
+            projectId: "tan-chat-2e451",
+            storageBucket: "tan-chat-2e451.firebasestorage.app",
+            messagingSenderId: "63326093933",
+            appId: "1:63326093933:web:a8abc6a36eff1530af3564"
+        };
+    }
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    // --- State Management ---
+    let currentUser = null;
+    let myProfile = null;
+    let usersData = {}; 
+    let contactsData = {}; 
+    let groupsData = {};
+    let activeChatId = null;
+    let activeIsGroup = false;
+    let replyingTo = null;
+    let selectedMsgForAction = null;
+    
+    // Unsubscribe handlers
+    let unsubContacts, unsubRequests, unsubMessages, unsubTyping, unsubGroups, unsubUsers;
+
+    // --- Strict Paths Architecture ---
+    const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+    const privCol = (colName) => collection(db, 'artifacts', appId, 'users', currentUser.uid, colName);
+
+    // Initializing Visual Tokens & Icons
+    lucide.createIcons();
+
+    // Custom copy to clipboard with input fallback (iframe friendly)
+    document.getElementById('btn-copy-id').addEventListener('click', () => {
+        const idText = document.getElementById('menu-id').innerText;
+        const tempInput = document.createElement('input');
+        tempInput.value = idText;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+            document.execCommand('copy');
+            showToast("TAN ID copied!");
+        } catch(e) {
+            showToast("Failed to copy automatically");
+        }
+        document.body.removeChild(tempInput);
+    });
+
+    // Handle 3-Dot Options dropdown
+    document.getElementById('btn-chat-options').addEventListener('click', () => {
+        document.getElementById('chat-options-menu').classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('chat-options-menu');
+        if (menu && !menu.classList.contains('hidden') && !e.target.closest('#btn-chat-options') && !e.target.closest('#chat-options-menu')) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('msg-options-modal').addEventListener('click', (e) => {
+        if(e.target.id === 'msg-options-modal') history.back();
+    });
+
+    // Chat Screen Background Adjustment
+    function setChatBackground(color) {
+        const chatScreen = document.getElementById('chat-screen');
+        const defaultBg = 'rgba(11, 15, 25, 0.9)';
+        
+        if (color === 'default' || !color) {
+            chatScreen.style.background = defaultBg;
+        } else {
+            chatScreen.style.background = color;
+        }
+
+        document.querySelectorAll('.bg-option').forEach(btn => {
+            const btnColor = btn.getAttribute('data-color');
+            if (btnColor === color || (!color && btnColor === 'default')) {
+                btn.style.borderColor = 'var(--primary-color)';
+            } else {
+                btn.style.borderColor = 'transparent';
+            }
+        });
+    }
+
+    document.querySelectorAll('.bg-option').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const color = btn.getAttribute('data-color');
+            setChatBackground(color);
+            if (currentUser && myProfile) {
+                try {
+                    await updateDoc(doc(pubCol('users'), currentUser.uid), { chatBg: color });
+                    myProfile.chatBg = color;
+                } catch(err) { console.error("Could not save background preference", err); }
+            }
+        });
+    });
+
+    // Autoscroll input fields cleanly on touch/keyboard popups
+    const chatInput = document.getElementById('chat-input');
+    chatInput.addEventListener('focus', () => {
+        setTimeout(() => {
+            const container = document.getElementById('chat-messages');
+            if(container) container.scrollTop = container.scrollHeight;
+        }, 300);
+    });
+
+    // Dismiss active reply quoting preview
+    document.getElementById('cancel-reply').addEventListener('click', () => {
+        replyingTo = null;
+        document.getElementById('reply-preview').classList.add('hidden');
+    });
+
+    window.setReplyTo = function(msgId, text, senderName) {
+        replyingTo = { id: msgId, text: text, senderName: senderName };
+        document.getElementById('reply-preview-name').innerText = senderName;
+        document.getElementById('reply-preview-text').innerText = text;
+        document.getElementById('reply-preview').classList.remove('hidden');
+        document.getElementById('chat-input').focus();
+    };
+
+    // Message options modal initialization
+    function openMsgOptions(msg, isMe) {
+        selectedMsgForAction = msg;
+        const btnEveryone = document.getElementById('btn-msg-del-everyone');
+        if (isMe) {
+            btnEveryone.style.display = 'flex';
+        } else {
+            btnEveryone.style.display = 'none';
+        }
+        pushOverlay('msg-options-modal');
+    }
+
+    document.getElementById('btn-msg-cancel').addEventListener('click', () => {
+        history.back();
+    });
+
+    document.getElementById('btn-msg-del-me').addEventListener('click', async () => {
+        if(!selectedMsgForAction || !activeChatId) return;
+        const msgId = selectedMsgForAction.id;
+        history.back();
+        try {
+            await updateDoc(doc(pubCol(`messages_${activeChatId}`), msgId), {
+                deletedBy: arrayUnion(currentUser.uid)
+            });
+            showToast("Deleted for you");
+        } catch(e) {
+            console.error(e);
+            showToast("Failed to delete message");
+        }
+    });
+
+    document.getElementById('btn-msg-del-everyone').addEventListener('click', async () => {
+        if(!selectedMsgForAction || !activeChatId) return;
+        const msgId = selectedMsgForAction.id;
+        history.back();
+        try {
+            await deleteDoc(doc(pubCol(`messages_${activeChatId}`), msgId));
+            showToast("Deleted for everyone");
+        } catch(e) {
+            console.error(e);
+            showToast("Failed to delete message");
+        }
+    });
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function showAuthError(msg) {
+        const errDiv = document.getElementById('auth-error');
+        errDiv.innerHTML = msg;
+        errDiv.classList.remove('hidden');
+    }
+
+    function showLoginError(msg) {
+        const errDiv = document.getElementById('login-error');
+        errDiv.innerHTML = msg;
+        errDiv.classList.remove('hidden');
+    }
+
+    // Audio Haptic Notification
+    function playMessageSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.15);
+        } catch(e){}
+    }
+
+    function emojiToSVG(content) {
+        const c = content.substring(0, 2) || '👤';
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1e1e1e"/><text x="50" y="55" font-family="Arial, sans-serif" font-size="50" text-anchor="middle" dominant-baseline="central" fill="#ffffff">${c}</text></svg>`;
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function generateShortId() {
+        return 'TAN-' + Math.floor(1000 + Math.random() * 9000);
+    }
+
+    function getChatId(uid1, uid2) {
+        return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+    }
+
+    // --- Overlay Stack Navigation Controls ---
+    let overlayStack = [];
+    history.replaceState({ overlays: [] }, '');
+
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.overlays) {
+            overlayStack = e.state.overlays;
+        } else {
+            overlayStack = [];
+        }
+        renderOverlays();
+    });
+
+    function pushOverlay(id) {
+        overlayStack.push(id);
+        history.pushState({ overlays: overlayStack }, '');
+        renderOverlays();
+    }
+
+    function renderOverlays() {
+        const managedOverlays = [
+            'add-friend-modal', 
+            'create-group-modal', 
+            'chat-screen', 
+            'side-menu', 
+            'edit-profile-modal', 
+            'edit-group-modal',
+            'msg-options-modal'
+        ];
+        
+        managedOverlays.forEach(id => {
+            const el = document.getElementById(id);
+            if (overlayStack.includes(id)) {
+                if (id === 'side-menu') {
+                    el.classList.add('active');
+                    document.getElementById('menu-backdrop').classList.add('active');
+                } else {
+                    el.classList.add('active');
+                }
+            } else {
+                if (el.classList.contains('active')) {
+                    if (id === 'side-menu') {
+                        el.classList.remove('active');
+                        document.getElementById('menu-backdrop').classList.remove('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                    
+                    if (id === 'chat-screen') {
+                        activeChatId = null;
+                        activeIsGroup = false;
+                        if(unsubMessages) { unsubMessages(); unsubMessages = null; }
+                        if(unsubTyping) { unsubTyping(); unsubTyping = null; }
+                    }
+                    if (id === 'add-friend-modal') {
+                        document.getElementById('search-result').classList.add('hidden');
+                        document.getElementById('search-uid').value = '';
+                    }
+                    if (id === 'msg-options-modal') {
+                        selectedMsgForAction = null;
+                    }
+                }
+            }
+        });
+    }
+
+    // App Wakeup Event Handlers
+    const handleAppWakeup = async () => {
+        if (currentUser && activeChatId) {
+            const container = document.getElementById('chat-messages');
+            if (container) {
+                setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+            }
+        }
+    };
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            handleAppWakeup();
+        }
+    });
+
+    window.addEventListener("focus", () => {
+        if (document.visibilityState === "visible") {
+            handleAppWakeup();
+        }
+    });
+
+    // Tab Switching Navigation
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(btn.getAttribute('data-target')).classList.remove('hidden');
+        });
+    });
+
+    document.getElementById('btn-add-friend-modal').addEventListener('click', () => {
+        pushOverlay('add-friend-modal');
+    });
+    document.getElementById('close-add-friend').addEventListener('click', () => {
+        history.back();
+    });
+
+    document.getElementById('my-profile-pic').addEventListener('click', () => {
+        pushOverlay('side-menu');
+    });
+    document.getElementById('menu-backdrop').addEventListener('click', () => {
+        history.back();
+    });
+
+    // --- Authentication Actions ---
+    const executeAuthPriority = async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                // Rely on explicit interactive Auth triggers
+            }
+        } catch (e) {
+            console.error("Token sign in failed", e);
+        }
+    };
+
+    document.getElementById('btn-email-signin').addEventListener('click', async () => {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        if (!email || !password) return showLoginError("Email and password are required.");
+
+        document.getElementById('login-error').classList.add('hidden');
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (e) {
+            console.error(e);
+            showLoginError("Sign In Failed: " + e.message);
+        }
+    });
+
+    document.getElementById('btn-email-signup').addEventListener('click', async () => {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        if (!email || !password) return showLoginError("Email and password are required.");
+
+        document.getElementById('login-error').classList.add('hidden');
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+        } catch (e) {
+            console.error(e);
+            showLoginError("Sign Up Failed: " + e.message);
+        }
+    });
+
+    document.getElementById('btn-forgot-password').addEventListener('click', async () => {
+        const email = document.getElementById('login-email').value.trim();
+        if (!email) {
+            return showLoginError("Please enter your email address to reset password.");
+        }
+        
+        document.getElementById('login-error').classList.add('hidden');
+        try {
+            await sendPasswordResetEmail(auth, email);
+            showToast("Password reset email sent!");
+        } catch (e) {
+            console.error(e);
+            showLoginError("Password Reset Failed: " + e.message);
+        }
+    });
+
+    document.getElementById('btn-anon-login').addEventListener('click', async () => {
+        document.getElementById('login-error').classList.add('hidden');
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        } catch (e) {
+            console.error(e);
+            if (e.code === 'auth/operation-not-allowed') {
+                showLoginError("Anonymous Auth Not Enabled in Firebase Console.");
+            } else {
+                showLoginError("Login Failed: " + e.message);
+            }
+        }
+    });
+
+    // Execute state handler and startup triggers
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            document.getElementById('login-screen').classList.remove('active');
+            currentUser = user;
+            checkProfileSetup();
+        } else {
+            document.getElementById('login-screen').classList.add('active');
+            document.getElementById('auth-screen').classList.remove('active');
+            document.getElementById('splash-screen').classList.remove('active');
+        }
+    });
+
+    // Secure Profile Status Audit
+    async function checkProfileSetup() {
+        if (!currentUser) return;
+        try {
+            const userDoc = await getDoc(doc(pubCol('users'), currentUser.uid));
+            if (userDoc.exists()) {
+                myProfile = userDoc.data();
+                document.getElementById('auth-screen').classList.remove('active');
+                updateProfileUI();
+                startListeners();
+            } else {
+                document.getElementById('auth-screen').classList.add('active');
+            }
+        } catch(e) {
+            console.error("Profile check failed", e);
+            document.getElementById('auth-screen').classList.add('active');
+        }
+        document.getElementById('splash-screen').classList.remove('active');
+    }
+
+    document.getElementById('btn-save-profile').addEventListener('click', async () => {
+        const name = document.getElementById('profile-name').value.trim();
+        const bio = document.getElementById('profile-bio').value.trim();
+        const emoji = document.getElementById('profile-emoji').value.trim();
+
+        if (!name || !emoji) return showToast('Name and Emoji are required!');
+
+        const dpUrl = emojiToSVG(emoji);
+        const shortId = generateShortId();
+
+        const profileData = {
+            uid: currentUser.uid,
+            shortId,
+            name,
+            bio,
+            emoji, 
+            dpUrl,
+            createdAt: Date.now()
+        };
+
+        try {
+            await setDoc(doc(pubCol('users'), currentUser.uid), profileData);
+            myProfile = profileData;
+            document.getElementById('auth-screen').classList.remove('active');
+            updateProfileUI();
+            startListeners();
+            showToast('Welcome!');
+        } catch(e) { 
+            console.error(e); 
+            if (e.code === 'permission-denied') {
+                showAuthError("Database Setup Rules Required. Adjust Firestore rules.");
+            } else {
+                showToast('Error saving profile'); 
+            }
+        }
+    });
+
+    function updateProfileUI() {
+        document.getElementById('my-profile-pic').src = myProfile.dpUrl;
+        document.getElementById('menu-pic').src = myProfile.dpUrl;
+        document.getElementById('menu-name').innerText = myProfile.name;
+        document.getElementById('menu-id').innerText = myProfile.shortId;
+        document.getElementById('menu-bio').innerText = myProfile.bio;
+        setChatBackground(myProfile.chatBg || 'default');
+    }
+
+    // Toggle user editor screens
+    document.getElementById('btn-edit-profile').addEventListener('click', () => {
+        overlayStack = overlayStack.filter(id => id !== 'side-menu');
+        overlayStack.push('edit-profile-modal');
+        history.replaceState({ overlays: overlayStack }, '');
+        renderOverlays();
+        
+        document.getElementById('edit-profile-name').value = myProfile.name || '';
+        document.getElementById('edit-profile-bio').value = myProfile.bio || '';
+        document.getElementById('edit-profile-emoji').value = myProfile.emoji || '';
+        document.getElementById('edit-profile-preview').src = myProfile.dpUrl || '';
+    });
+
+    document.getElementById('close-edit-profile').addEventListener('click', () => {
+        history.back();
+    });
+
+    document.getElementById('edit-profile-emoji').addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+            document.getElementById('edit-profile-preview').src = emojiToSVG(val);
+        }
+    });
+
+    document.getElementById('btn-update-profile').addEventListener('click', async () => {
+        const name = document.getElementById('edit-profile-name').value.trim();
+        const bio = document.getElementById('edit-profile-bio').value.trim();
+        const emoji = document.getElementById('edit-profile-emoji').value.trim();
+
+        if (!name || !emoji) return showToast('Name and Emoji are required!');
+
+        const dpUrl = emojiToSVG(emoji);
+
+        try {
+            await updateDoc(doc(pubCol('users'), currentUser.uid), {
+                name,
+                bio,
+                emoji,
+                dpUrl
+            });
+            
+            myProfile.name = name;
+            myProfile.bio = bio;
+            myProfile.emoji = emoji;
+            myProfile.dpUrl = dpUrl;
+            
+            updateProfileUI();
+            history.back();
+            showToast('Profile updated!');
+        } catch(e) {
+            console.error(e);
+            showToast('Error updating profile');
+        }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        stopAllListeners();
+        signOut(auth).then(() => window.location.reload());
+    });
+
+    // Fullscreen adjustments
+    document.getElementById('btn-toggle-fullscreen').addEventListener('click', () => {
+        history.back();
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {
+                showToast(`Fullscreen is unavailable`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        const icon = document.getElementById('fullscreen-icon');
+        if (document.fullscreenElement) {
+            icon.setAttribute('data-lucide', 'minimize');
+        } else {
+            icon.setAttribute('data-lucide', 'maximize');
+        }
+        lucide.createIcons();
+    });
+
+    // --- Core Realtime Handlers (Rule 3 Guarded) ---
+    function startListeners() {
+        if (!currentUser) return;
+        
+        // Dynamic users list synchronization
+        unsubUsers = onSnapshot(pubCol('users'), (snap) => {
+            snap.docs.forEach(d => { usersData[d.id] = d.data(); });
+            renderContacts();
+        }, (err) => console.error("Users database connection error", err));
+
+        // Sync contacts
+        unsubContacts = onSnapshot(privCol('contacts'), (snap) => {
+            snap.docs.forEach(d => { contactsData[d.id] = d.data(); });
+            renderContacts();
+        }, (err) => console.error("Contacts connection error", err));
+
+        // Sync Groups
+        unsubGroups = onSnapshot(pubCol('groups'), (snap) => {
+            groupsData = {};
+            snap.docs.forEach(d => {
+                const g = d.data();
+                if (g.members && g.members.includes(currentUser.uid)) {
+                    groupsData[d.id] = g;
+                }
+            });
+            renderContacts();
+        }, (err) => console.error("Groups connection error", err));
+
+        // Sync incoming friend invites
+        unsubRequests = onSnapshot(pubCol('requests'), (snap) => {
+            const list = document.getElementById('requests-list');
+            list.innerHTML = '';
+            let count = 0;
+
+            snap.docs.forEach(d => {
+                const req = d.data();
+                if (req.targetUid === currentUser.uid && req.status === 'pending') {
+                    count++;
+                    const sender = usersData[req.fromUid] || { name: 'Unknown', dpUrl: emojiToSVG('?') };
+                    const div = document.createElement('div');
+                    div.className = 'list-item justify-between';
+                    div.innerHTML = `
+                        <div class="flex items-center">
+                            <img src="${sender.dpUrl}" class="profile-pic">
+                            <div class="info">
+                                <div class="name">${sender.name}</div>
+                                <div class="sub">Wants to connect</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn-primary" style="padding: 6px 12px; margin:0;" onclick="acceptRequest('${d.id}', '${req.fromUid}')">Accept</button>
+                            <button class="btn-danger" style="padding: 6px 12px; border-radius:24px; font-weight:600;" onclick="declineRequest('${d.id}')">X</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                }
+            });
+
+            document.getElementById('requests-empty').classList.toggle('hidden', count > 0);
+            const badge = document.getElementById('req-badge');
+            badge.innerText = count;
+            badge.classList.toggle('hidden', count === 0);
+        }, (err) => console.error("Invites synchronization error", err));
+    }
+
+    function stopAllListeners() {
+        if(unsubContacts) unsubContacts();
+        if(unsubRequests) unsubRequests();
+        if(unsubMessages) unsubMessages();
+        if(unsubTyping) unsubTyping();
+        if(unsubGroups) unsubGroups();
+        if(unsubUsers) unsubUsers();
+    }
+
+    // --- Search & Direct Requests ---
+    document.getElementById('btn-search-user').addEventListener('click', () => {
+        const query = document.getElementById('search-uid').value.trim().toUpperCase();
+        if (!query) return;
+        
+        let found = null;
+        for (const uid in usersData) {
+            if (usersData[uid].shortId === query && uid !== currentUser.uid) {
+                found = { uid, ...usersData[uid] };
+                break;
+            }
+        }
+
+        if (found) {
+            document.getElementById('search-pic').src = found.dpUrl;
+            document.getElementById('search-name').innerText = found.name;
+            document.getElementById('search-bio').innerText = found.bio;
+            document.getElementById('search-result').classList.remove('hidden');
+            
+            document.getElementById('btn-send-request').onclick = () => sendRequest(found.uid);
+        } else {
+            showToast('User not found!');
+            document.getElementById('search-result').classList.add('hidden');
+        }
+    });
+
+    async function sendRequest(targetUid) {
+        if(contactsData[targetUid]) return showToast("Already friends!");
+        try {
+            await addDoc(pubCol('requests'), {
+                fromUid: currentUser.uid,
+                targetUid: targetUid,
+                status: 'pending',
+                timestamp: Date.now()
+            });
+            showToast('Request sent!');
+            history.back();
+        } catch(e) { showToast('Error sending request'); }
+    }
+
+    window.acceptRequest = async (reqId, fromUid) => {
+        try {
+            await deleteDoc(doc(pubCol('requests'), reqId));
+            await setDoc(doc(privCol('contacts'), fromUid), { addedAt: Date.now(), unread: 0, clearedAt: 0 });
+            await setDoc(doc(collection(db, 'artifacts', appId, 'users', fromUid, 'contacts'), currentUser.uid), { addedAt: Date.now(), unread: 0, clearedAt: 0 });
+            showToast('Friend added!');
+        } catch(e) { console.error(e); }
+    };
+
+    window.declineRequest = async (reqId) => {
+        try {
+            await deleteDoc(doc(pubCol('requests'), reqId));
+        } catch(e) { console.error(e); }
+    };
+
+    // --- Customizable Groups System ---
+    let selectedGroupMembers = [];
+    document.getElementById('btn-create-group-modal').addEventListener('click', () => {
+        pushOverlay('create-group-modal');
+        selectedGroupMembers = [];
+        document.getElementById('group-name').value = '';
+        renderGroupMemberSelection();
+    });
+    
+    document.getElementById('close-create-group').addEventListener('click', () => {
+        history.back();
+    });
+
+    function renderGroupMemberSelection() {
+        const list = document.getElementById('group-members-list');
+        list.innerHTML = '';
+        for (const uid in contactsData) {
+            const peer = usersData[uid];
+            if (!peer) continue;
+            const div = document.createElement('div');
+            div.className = 'selectable-item';
+            div.innerHTML = `
+                <img src="${peer.dpUrl}" class="profile-pic" style="margin-right: 12px; width: 36px; height: 36px;">
+                <span>${peer.name}</span>
+                <div class="checkbox"></div>
+            `;
+            div.onclick = () => {
+                const idx = selectedGroupMembers.indexOf(uid);
+                if (idx > -1) {
+                    selectedGroupMembers.splice(idx, 1);
+                    div.classList.remove('selected');
+                } else {
+                    selectedGroupMembers.push(uid);
+                    div.classList.add('selected');
+                }
+            };
+            list.appendChild(div);
+        }
+        if(Object.keys(contactsData).length === 0) {
+            list.innerHTML = '<p style="color: var(--text-muted); text-align:center; margin-top: 20px;">No friends to add.</p>';
+        }
+    }
+
+    document.getElementById('btn-save-group').addEventListener('click', async () => {
+        const name = document.getElementById('group-name').value.trim();
+        if (!name) return showToast('Group name required');
+        if (selectedGroupMembers.length === 0) return showToast('Select at least 1 member');
+
+        try {
+            await addDoc(pubCol('groups'), {
+                name: name,
+                members: [currentUser.uid, ...selectedGroupMembers],
+                emoji: '👥',
+                dpUrl: emojiToSVG('👥'),
+                createdBy: currentUser.uid,
+                createdAt: Date.now(),
+                isGroup: true
+            });
+            showToast('Group Created!');
+            history.back();
+        } catch(e) { showToast('Error creating group'); console.error(e); }
+    });
+
+    // Edit and Add Members to Groups
+    let selectedNewGroupMembers = [];
+
+    document.getElementById('btn-group-info').addEventListener('click', () => {
+        if (!activeIsGroup) return;
+        const group = groupsData[activeChatId];
+        if (!group) return;
+
+        selectedNewGroupMembers = [];
+        document.getElementById('edit-group-name-input').value = group.name;
+        document.getElementById('edit-group-emoji-input').value = group.emoji || '👥';
+        document.getElementById('edit-group-preview').src = group.dpUrl;
+
+        const list = document.getElementById('edit-group-add-members-list');
+        list.innerHTML = '';
+        let canAddAnyone = false;
+
+        for (const uid in contactsData) {
+            if (group.members.includes(uid)) continue;
+
+            canAddAnyone = true;
+            const peer = usersData[uid];
+            if (!peer) continue;
+
+            const div = document.createElement('div');
+            div.className = 'selectable-item';
+            div.innerHTML = `
+                <img src="${peer.dpUrl}" class="profile-pic" style="margin-right: 12px; width: 36px; height: 36px;">
+                <span>${peer.name}</span>
+                <div class="checkbox"></div>
+            `;
+            div.onclick = () => {
+                const idx = selectedNewGroupMembers.indexOf(uid);
+                if (idx > -1) {
+                    selectedNewGroupMembers.splice(idx, 1);
+                    div.classList.remove('selected');
+                } else {
+                    selectedNewGroupMembers.push(uid);
+                    div.classList.add('selected');
+                }
+            };
+            list.appendChild(div);
+        }
+
+        if (!canAddAnyone) {
+            list.innerHTML = '<p style="color: var(--text-muted); text-align:center; margin-top: 20px;">All friends are already in this group.</p>';
+        }
+
+        pushOverlay('edit-group-modal');
+    });
+
+    document.getElementById('close-edit-group').addEventListener('click', () => {
+        history.back();
+    });
+
+    document.getElementById('edit-group-emoji-input').addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+            document.getElementById('edit-group-preview').src = emojiToSVG(val);
+        }
+    });
+
+    document.getElementById('btn-save-edit-group').addEventListener('click', async () => {
+        const name = document.getElementById('edit-group-name-input').value.trim();
+        const emoji = document.getElementById('edit-group-emoji-input').value.trim() || '👥';
+
+        if (!name) return showToast('Group name required');
+
+        const dpUrl = emojiToSVG(emoji);
+        const group = groupsData[activeChatId];
+        const updatedMembers = [...group.members, ...selectedNewGroupMembers];
+
+        try {
+            await updateDoc(doc(pubCol('groups'), activeChatId), {
+                name: name,
+                emoji: emoji,
+                dpUrl: dpUrl,
+                members: updatedMembers
+            });
+
+            showToast('Group Updated!');
+            history.back();
+
+            document.getElementById('chat-user-name').innerText = name;
+            document.getElementById('chat-user-pic').src = dpUrl;
+        } catch(e) {
+            showToast('Error updating group');
+            console.error(e);
+        }
+    });
+
+    // --- Dynamic Feed Rendering ---
+    function renderContacts() {
+        const list = document.getElementById('contacts-list');
+        list.innerHTML = '';
+        let count = 0;
+
+        for (const uid in contactsData) {
+            count++;
+            const peer = usersData[uid] || { name: 'Unknown', dpUrl: emojiToSVG('?') };
+            const contactInfo = contactsData[uid];
+            
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.onclick = () => openChat(uid, peer, false);
+            div.innerHTML = `
+                <img src="${peer.dpUrl}" class="profile-pic">
+                <div class="info">
+                    <div class="name">${peer.name}</div>
+                    <div class="sub">Tap to chat</div>
+                </div>
+                ${contactInfo.unread > 0 ? `<div class="unread-badge">${contactInfo.unread}</div>` : ''}
+            `;
+            list.appendChild(div);
+        }
+
+        for (const groupId in groupsData) {
+            count++;
+            const group = groupsData[groupId];
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.onclick = () => openChat(groupId, group, true);
+            div.innerHTML = `
+                <img src="${group.dpUrl}" class="profile-pic">
+                <div class="info">
+                    <div class="name">${group.name}</div>
+                    <div class="sub">${group.members.length} members</div>
+                </div>
+            `;
+            list.appendChild(div);
+        }
+
+        document.getElementById('contacts-empty').classList.toggle('hidden', count > 0);
+        lucide.createIcons();
+    }
+
+    // Chat Controller (Rule 2 Compliant Sort & Rule 3 Guarded)
+    function openChat(id, entity, isGroup = false) {
+        if (!currentUser) return;
+        activeIsGroup = isGroup;
+        
+        replyingTo = null;
+        document.getElementById('reply-preview').classList.add('hidden');
+        
+        if (isGroup) {
+            activeChatId = id;
+            document.getElementById('btn-group-info').classList.remove('hidden');
+        } else {
+            activeChatId = getChatId(currentUser.uid, id);
+            document.getElementById('btn-group-info').classList.add('hidden');
+            updateDoc(doc(privCol('contacts'), id), { unread: 0 }).catch(()=>{});
+        }
+
+        document.getElementById('chat-user-name').innerText = entity.name;
+        document.getElementById('chat-user-pic').src = entity.dpUrl;
+        
+        pushOverlay('chat-screen');
+        
+        if (unsubMessages) unsubMessages();
+        if (unsubTyping) unsubTyping();
+
+        const messagesCol = pubCol(`messages_${activeChatId}`);
+        const typingCol = pubCol(`typing_${activeChatId}`);
+        
+        const chatClearedAt = (!isGroup && contactsData[id]) ? (contactsData[id].clearedAt || 0) : 0;
+        let previousMsgCount = 0;
+
+        unsubMessages = onSnapshot(messagesCol, (snap) => {
+            const msgs = [];
+            snap.docs.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+            
+            // Perform sorting locally in memory to fully comply with Rule 2 (No Complex Firestore Queries)
+            msgs.sort((a, b) => a.timestamp - b.timestamp);
+            
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
+            
+            msgs.forEach(msg => {
+                if(msg.timestamp < chatClearedAt) return;
+                if(msg.deletedBy && msg.deletedBy.includes(currentUser.uid)) return;
+
+                const isMe = msg.senderId === currentUser.uid;
+                
+                if (!isMe && msg.status !== 'read' && !isGroup) {
+                    updateDoc(doc(messagesCol, msg.id), { status: 'read' }).catch(()=>{});
+                }
+
+                const div = document.createElement('div');
+                div.className = `message ${isMe ? 'msg-me' : 'msg-other'}`;
+
+                let senderHtml = '';
+                if (isGroup && !isMe) {
+                    const sender = usersData[msg.senderId] || { name: 'Unknown' };
+                    senderHtml = `<span class="msg-sender-name">${sender.name}</span>`;
+                }
+
+                const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let tickHtml = '';
+                if (isMe && !isGroup) {
+                    if (msg.status === 'read') {
+                        tickHtml = `<div class="msg-ticks"><i data-lucide="check-check" style="width: 14px; height: 14px; color: #4fc3f7;"></i></div>`;
+                    } else {
+                        tickHtml = `<div class="msg-ticks"><i data-lucide="check" style="width: 12px; height: 12px;"></i></div>`;
+                    }
+                }
+
+                let replyHtml = '';
+                if (msg.replyTo) {
+                    replyHtml = `
+                        <div class="quoted-msg">
+                            <div style="font-weight: 600; margin-bottom: 2px; font-size: 0.75rem; ${isMe ? 'color: #fff;' : 'color: var(--primary-color);'}">${msg.replyTo.senderName}</div>
+                            <div style="opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; max-width: 60vw;">${msg.replyTo.text}</div>
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    ${senderHtml}
+                    ${replyHtml}
+                    <div class="msg-content">${msg.text}</div>
+                    <div class="msg-meta">
+                        <span class="msg-time">${timeStr}</span>
+                        ${tickHtml}
+                    </div>
+                `;
+                
+                // Advanced Handlers: Touch swipe, double tap & longpress adjustments
+                let pressTimer;
+                div.addEventListener('touchstart', e => {
+                    div.dataset.startX = e.changedTouches[0].screenX;
+                    div.style.transition = 'none';
+                    
+                    pressTimer = setTimeout(() => {
+                        if (navigator.vibrate) navigator.vibrate(50);
+                        openMsgOptions(msg, isMe);
+                    }, 500); 
+                }, {passive: true});
+                
+                div.addEventListener('touchmove', e => {
+                    clearTimeout(pressTimer);
+                    let startX = parseFloat(div.dataset.startX);
+                    let diff = e.changedTouches[0].screenX - startX;
+                    if (diff > 0 && diff < 60) {
+                        div.style.transform = `translateX(${diff}px)`;
+                    }
+                }, {passive: true});
+
+                div.addEventListener('touchend', e => {
+                    clearTimeout(pressTimer);
+                    div.style.transition = 'transform 0.3s ease';
+                    div.style.transform = 'translateX(0)';
+                    let startX = parseFloat(div.dataset.startX);
+                    
+                    if (e.changedTouches[0].screenX - startX > 40) {
+                        const senderName = isMe ? (myProfile ? myProfile.name : 'You') : (usersData[msg.senderId]?.name || 'Unknown');
+                        setReplyTo(msg.id, msg.text, senderName);
+                        if (navigator.vibrate) navigator.vibrate(50);
+                    }
+                }, {passive: true});
+
+                div.addEventListener('contextmenu', e => {
+                    e.preventDefault();
+                    openMsgOptions(msg, isMe);
+                });
+
+                div.ondblclick = () => {
+                    const senderName = isMe ? (myProfile ? myProfile.name : 'You') : (usersData[msg.senderId]?.name || 'Unknown');
+                    setReplyTo(msg.id, msg.text, senderName);
+                };
+
+                container.appendChild(div);
+            });
+            
+            lucide.createIcons({ root: container });
+            
+            if (msgs.length > previousMsgCount && previousMsgCount > 0) {
+                const lastMsg = msgs[msgs.length - 1];
+                if (lastMsg.senderId !== currentUser.uid) {
+                    playMessageSound();
+                }
+            }
+            previousMsgCount = msgs.length;
+
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 10);
+        }, (err) => console.error("Message sync error", err));
+
+        // Sync typing notifications
+        unsubTyping = onSnapshot(typingCol, (snap) => {
+            let typingNames = [];
+            snap.docs.forEach(d => {
+                const data = d.data();
+                if(data.uid !== currentUser.uid && (Date.now() - data.time < 3000)) {
+                    typingNames.push(usersData[data.uid]?.name || 'Someone');
+                }
+            });
+            const indicator = document.getElementById('chat-typing');
+            if (typingNames.length > 0) {
+                indicator.innerText = isGroup ? `${typingNames.join(', ')} typing...` : 'typing...';
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }, (err) => console.error("Typing notification state error", err));
+
+        // Sending messaging events
+        document.getElementById('btn-send-msg').onclick = () => sendMessage(id, isGroup);
+        document.getElementById('chat-input').onkeypress = (e) => {
+            if(e.key === 'Enter') sendMessage(id, isGroup);
+            else {
+                setDoc(doc(typingCol, currentUser.uid), { uid: currentUser.uid, time: Date.now() });
+            }
+        };
+        
+        document.getElementById('btn-clear-chat-me').onclick = () => {
+            if (!isGroup) {
+                updateDoc(doc(privCol('contacts'), id), { clearedAt: Date.now() });
+            }
+            showToast("Chat cleared for you");
+            document.getElementById('chat-options-menu').classList.add('hidden');
+        };
+
+        document.getElementById('btn-clear-chat-everyone').onclick = async () => {
+            document.getElementById('chat-options-menu').classList.add('hidden');
+            showToast("Clearing chat...");
+            try {
+                const msgsSnap = await getDocs(pubCol(`messages_${activeChatId}`));
+                msgsSnap.forEach((d) => {
+                    deleteDoc(d.ref).catch(e => console.error(e));
+                });
+                showToast("Chat cleared for everyone");
+            } catch(e) {
+                console.error("Error clearing chat", e);
+                showToast("Failed to clear chat");
+            }
+        };
+    }
+
+    async function sendMessage(id, isGroup) {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text || !activeChatId) return;
+        
+        input.value = '';
+        
+        const payload = {
+            senderId: currentUser.uid,
+            text: text,
+            timestamp: Date.now(),
+            status: 'sent'
+        };
+
+        if (replyingTo) {
+            payload.replyTo = replyingTo;
+            replyingTo = null;
+            document.getElementById('reply-preview').classList.add('hidden');
+        }
+
+        try {
+            await addDoc(pubCol(`messages_${activeChatId}`), payload);
+            
+            if (!isGroup) {
+                const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', id, 'contacts'), currentUser.uid);
+                try {
+                    const pDoc = await getDoc(peerContactDoc);
+                    if(pDoc.exists()) {
+                        await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
+                    } else {
+                        await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
+                    }
+                } catch(err) { console.error("Unread update error", err); }
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    document.getElementById('close-chat').addEventListener('click', () => {
+        history.back();
+    });
+
+    // Run auth procedures automatically on load
+    executeAuthPriority();
+</script>
+</body>
+</html>
