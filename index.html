@@ -1079,6 +1079,7 @@
             <!-- Normal Text & Media Input Bar -->
             <div id="normal-input-bar" class="flex items-center gap-2 w-full">
                 <button id="btn-attach-media" class="attach-btn" title="Send Photo or Video"><i data-lucide="paperclip" style="width: 20px; height: 20px;"></i></button>
+                <button id="btn-code-msg" class="attach-btn" title="Send Code Snippet"><i data-lucide="code" style="width: 20px; height: 20px;"></i></button>
                 <input type="file" id="media-file-input" accept="image/*,video/*" class="hidden">
                 <input type="text" id="chat-input" placeholder="Type a message...">
                 <button id="btn-voice-msg" class="attach-btn" title="Voice Message" style="font-size: 1.25rem;">🎙️</button>
@@ -1112,6 +1113,30 @@
             </div>
             <input type="text" id="media-caption-input" placeholder="Add a caption (optional)..." style="margin-bottom: 0;">
             <button class="btn-primary" id="btn-confirm-send-media" style="margin-top: 0;">Send Media</button>
+        </div>
+    </div>
+
+    <!-- Code Snippet Modal -->
+    <div id="code-snippet-modal" class="overlay" style="justify-content: center; align-items: center; background: rgba(0,0,0,0.85); z-index: 250;">
+        <div style="background: var(--container-solid); border-radius: 24px; padding: 20px; width: 90%; max-width: 450px; display: flex; flex-direction: column; gap: 14px; border: var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+            <div class="flex justify-between items-center">
+                <h3 style="font-size: 1.05rem; font-weight: 600;">Send Code Snippet</h3>
+                <button id="btn-cancel-code" style="padding: 4px;"><i data-lucide="x" style="width: 22px; height: 22px;"></i></button>
+            </div>
+            <select id="code-language-select" style="width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: var(--text-color); outline: none;">
+                <option value="plaintext">Plain Text</option>
+                <option value="javascript">JavaScript</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="python">Python</option>
+                <option value="cpp">C / C++</option>
+                <option value="java">Java</option>
+                <option value="json">JSON</option>
+                <option value="sql">SQL</option>
+                <option value="bash">Bash / Shell</option>
+            </select>
+            <textarea id="code-snippet-input" placeholder="Paste your code here..." style="width: 100%; height: 200px; padding: 14px; border-radius: 12px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); color: #4ade80; font-family: monospace; font-size: 0.9rem; outline: none; resize: none;"></textarea>
+            <button class="btn-primary" id="btn-send-code" style="margin-top: 0;">Send Code</button>
         </div>
     </div>
 
@@ -1427,6 +1452,14 @@
         return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
     }
 
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag] || tag));
+    }
+
+    // --- Overlay Stack Navigation Controls ---
     let overlayStack = [];
     history.replaceState({ overlays: [] }, '');
 
@@ -1455,6 +1488,7 @@
             'edit-group-modal',
             'msg-options-modal',
             'media-preview-modal',
+            'code-snippet-modal',
             'media-lightbox'
         ];
         
@@ -1494,6 +1528,9 @@
                         pendingMediaData = null;
                         document.getElementById('media-preview-container').innerHTML = '';
                         document.getElementById('media-caption-input').value = '';
+                    }
+                    if (id === 'code-snippet-modal') {
+                        document.getElementById('code-snippet-input').value = '';
                     }
                     if (id === 'media-lightbox') {
                         document.getElementById('lightbox-content').innerHTML = '';
@@ -1562,6 +1599,57 @@
                 openMediaPreview(evt.target.result, 'video');
             };
             reader.readAsDataURL(file);
+        }
+    });
+
+    // Code Snippet Sending Logic
+    document.getElementById('btn-code-msg').addEventListener('click', () => {
+        pushOverlay('code-snippet-modal');
+    });
+
+    document.getElementById('btn-cancel-code').addEventListener('click', () => {
+        history.back();
+    });
+
+    document.getElementById('btn-send-code').addEventListener('click', async () => {
+        const code = document.getElementById('code-snippet-input').value;
+        const lang = document.getElementById('code-language-select').value;
+        if (!code.trim() || !activeChatId) return;
+
+        history.back();
+        document.getElementById('code-snippet-input').value = '';
+
+        const payload = {
+            senderId: currentUser.uid,
+            text: code,
+            isCode: true,
+            codeLanguage: lang,
+            timestamp: Date.now(),
+            status: 'sent'
+        };
+
+        if (replyingTo) {
+            payload.replyTo = replyingTo;
+            replyingTo = null;
+            document.getElementById('reply-preview').classList.add('hidden');
+        }
+
+        try {
+            await addDoc(pubCol(`messages_${activeChatId}`), payload);
+            if (!activeIsGroup) {
+                const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', activeChatId, 'contacts'), currentUser.uid);
+                try {
+                    const pDoc = await getDoc(peerContactDoc);
+                    if(pDoc.exists()) {
+                        await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
+                    } else {
+                        await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
+                    }
+                } catch(e){}
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Failed to send code snippet");
         }
     });
 
@@ -2464,17 +2552,59 @@
                     }
                 }
 
+                let contentHtml = '';
+                if (msg.isCode) {
+                    contentHtml = `
+                        <div class="code-block" style="background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; margin-top: 4px; text-align: left;">
+                            <div style="background: rgba(255,255,255,0.05); padding: 6px 12px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <span style="text-transform: uppercase; font-weight: 600;">${escapeHTML(msg.codeLanguage) || 'CODE'}</span>
+                                <button class="copy-code-btn" style="padding: 4px; background: rgba(34,197,94,0.1); border-radius: 6px; display: flex; align-items: center; gap: 4px; color: var(--primary-color);">
+                                    <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                                    <span style="font-size: 0.65rem; font-weight: bold;">Copy</span>
+                                </button>
+                            </div>
+                            <pre style="margin: 0; padding: 12px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; color: #e5e7eb; white-space: pre-wrap; word-break: break-word;"><code>${escapeHTML(msg.text)}</code></pre>
+                        </div>
+                    `;
+                } else if (msg.text) {
+                    contentHtml = `<div class="msg-content" style="white-space: pre-wrap;">${escapeHTML(msg.text)}</div>`;
+                }
+
                 div.innerHTML = `
                     ${senderHtml}
                     ${replyHtml}
                     ${mediaHtml}
-                    ${msg.text ? `<div class="msg-content">${msg.text}</div>` : ''}
+                    ${contentHtml}
                     <div class="msg-meta">
                         <span class="msg-time">${timeStr}</span>
                         ${tickHtml}
                     </div>
                 `;
+
+                // Attach copy listener specifically for code blocks inside message
+                if (msg.isCode) {
+                    const copyBtn = div.querySelector('.copy-code-btn');
+                    if (copyBtn) {
+                        copyBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const tempInput = document.createElement('textarea');
+                            tempInput.value = msg.text;
+                            document.body.appendChild(tempInput);
+                            tempInput.select();
+                            try {
+                                document.execCommand('copy');
+                                showToast("Code copied!");
+                            } catch(err) {
+                                showToast("Failed to copy code.");
+                            }
+                            document.body.removeChild(tempInput);
+                        });
+                        copyBtn.addEventListener('touchstart', (e) => e.stopPropagation(), {passive: true});
+                        copyBtn.addEventListener('touchend', (e) => e.stopPropagation());
+                    }
+                }
                 
+                // Touch swipe, double tap & longpress adjustments
                 let pressTimer;
                 div.addEventListener('touchstart', e => {
                     div.dataset.startX = e.changedTouches[0].screenX;
