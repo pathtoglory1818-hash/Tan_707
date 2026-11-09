@@ -8,6 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#22c55e">
     <title>TAN Chats - Modern Chat Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.3/dist/dotlottie-wc.js" type="module"></script>
@@ -72,8 +74,8 @@
 
         #app-container {
             width: 100vw;
-            height: 100dvh;
             height: 100vh;
+            height: 100dvh;
             background: rgba(5, 9, 18, 0.9);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -195,13 +197,35 @@
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
                 width: 100% !important;
                 height: 100% !important;
+                max-height: 100% !important;
                 transform: none !important;
                 border-radius: 24px !important;
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity 0.3s ease;
+                overflow-y: auto;
+            }
+
+            #login-screen, #auth-screen {
+                padding: 24px 60px !important;
+            }
+
+            #login-screen dotlottie-wc {
+                width: 160px !important;
+                height: 160px !important;
+                margin-top: -15px !important;
+            }
+
+            #login-screen h1 {
+                font-size: 2.2rem !important;
+            }
+
+            #login-screen > div:first-child {
+                margin-bottom: 16px !important;
             }
 
             #splash-screen.active, #login-screen.active, #auth-screen.active {
@@ -247,8 +271,8 @@
             max-width: 100vw !important;
             max-height: 100vh !important;
             width: 100vw !important;
-            height: 100dvh !important;
             height: 100vh !important;
+            height: 100dvh !important;
             border-radius: 0 !important;
             border: none !important;
         }
@@ -515,11 +539,10 @@
         
         .chat-header {
             flex-shrink: 0;
-            padding-top: max(12px, env(safe-area-inset-top));
+            padding: max(12px, env(safe-area-inset-top)) 16px 12px 16px;
             background: var(--container-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -601,6 +624,76 @@
             display: block;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        .media-wrapper {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .media-upload-overlay {
+            position: absolute;
+             inset: 0;
+            background: rgba(3, 7, 18, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 5;
+            border-radius: 12px;
+            color: #ffffff;
+        }
+
+        .upload-ring {
+            width: 44px;
+            height: 44px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .upload-ring circle {
+            fill: none;
+            stroke-width: 3.5;
+            stroke-linecap: round;
+        }
+
+        .upload-ring .ring-bg {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-ring .ring-progress {
+            stroke: #ffffff;
+            stroke-dasharray: 113;
+            stroke-dashoffset: 113;
+            transition: stroke-dashoffset 0.15s ease;
+        }
+
+        .upload-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #22c55e;
+            border-radius: 50%;
+            animation: spinLoader 0.8s linear infinite;
+        }
+
+        @keyframes spinLoader {
+            to { transform: rotate(360deg); }
+        }
+
         .chat-media-audio {
             width: 100%;
             min-width: 200px;
@@ -814,6 +907,46 @@
         .btn-copy:active {
             background: rgba(255,255,255,0.12);
         }
+
+        /* Live Call UI Styles */
+        @keyframes pulseCallRing {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); transform: scale(1); }
+            70% { box-shadow: 0 0 0 24px rgba(34, 197, 94, 0); transform: scale(1.06); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); transform: scale(1); }
+        }
+        .call-avatar-pulse {
+            animation: pulseCallRing 2s infinite;
+            border-radius: 50%;
+        }
+        .call-ctrl-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        .call-ctrl-btn.off {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+        .call-ctrl-btn.end-call {
+            background: var(--danger-color);
+            border-color: #f87171;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+        }
+        .call-ctrl-btn.accept-call {
+            background: var(--primary-gradient);
+            border-color: #4ade80;
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -865,6 +998,9 @@
 
     <!-- Auth / Profile Setup Screen -->
     <div id="auth-screen" class="overlay flex-col">
+        <button id="btn-back-auth" class="header-icon-btn" style="position: absolute; top: max(20px, env(safe-area-inset-top)); left: 20px;" title="Back to Login">
+            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </button>
         <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="font-size: 2rem; color: var(--text-color); margin-top: 10px; font-weight: 600;">Profile Setup</h1>
             <p style="color: var(--text-muted);">Complete your profile to continue</p>
@@ -898,7 +1034,7 @@
         </div>
         
         <!-- Telegram Floating Button -->
-        <a href="https://t.me/tanchat_official" target="_blank" class="telegram-fab">
+        <a href="https://t.me/tanchat_official" target="_blank" rel="noopener noreferrer" class="telegram-fab">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 2px; margin-top: 2px;">
                 <path d="M21.1406 2.85906C21.1406 2.85906 22.6406 2.25906 22.5406 3.55906C22.4406 4.35906 21.8406 8.05906 21.3406 12.0591L19.8406 20.8591C19.8406 20.8591 19.7406 21.9591 18.8406 22.0591C17.9406 22.1591 16.5406 21.2591 16.2406 21.0591L11.5406 16.5591L9.44063 18.5591C9.44063 18.5591 9.14063 18.8591 8.84062 18.8591C8.44062 18.8591 8.54063 18.4591 8.44063 18.1591L7.24063 12.8591L2.24062 11.2591C2.24062 11.2591 1.24063 10.9591 1.34062 10.1591C1.44062 9.35906 2.34062 8.95906 2.34062 8.95906L21.1406 2.85906Z" fill="white"/>
             </svg>
@@ -1035,7 +1171,9 @@
                 <span id="chat-user-name" style="font-weight: 500;">Name</span>
                 <span id="chat-typing" class="typing-indicator hidden">typing...</span>
             </div>
-            <div class="chat-actions" style="position: relative;">
+            <div class="chat-actions" style="position: relative; align-items: center;">
+                <button id="btn-audio-call" class="header-icon-btn" title="Voice Call" style="width: 36px; height: 36px;"><i data-lucide="phone" style="width: 17px; height: 17px; color: var(--text-color);"></i></button>
+                <button id="btn-video-call" class="header-icon-btn" title="Video Call" style="width: 36px; height: 36px;"><i data-lucide="video" style="width: 18px; height: 18px; color: var(--text-color);"></i></button>
                 <button id="btn-group-info" class="hidden"><i data-lucide="info" style="color: var(--text-color);"></i></button>
                 <button id="btn-chat-options"><i data-lucide="more-vertical" style="color: var(--text-color);"></i></button>
                 
@@ -1078,7 +1216,7 @@
         <div class="chat-input-area">
             <!-- Normal Text & Media Input Bar -->
             <div id="normal-input-bar" class="flex items-center gap-2 w-full">
-                <button id="btn-attach-media" class="attach-btn" title="Send Photo or Video"><i data-lucide="paperclip" style="width: 20px; height: 20px;"></i></button>
+                <button id="btn-attach-media" class="attach-btn" title="Send Photo"><i data-lucide="paperclip" style="width: 20px; height: 20px;"></i></button>
                 <button id="btn-code-msg" class="attach-btn" title="Send Code Snippet"><i data-lucide="code" style="width: 20px; height: 20px;"></i></button>
                 <input type="file" id="media-file-input" accept="image/*,video/*" class="hidden">
                 <input type="text" id="chat-input" placeholder="Type a message...">
@@ -1105,14 +1243,14 @@
     <div id="media-preview-modal" class="overlay" style="justify-content: center; align-items: center; background: rgba(0,0,0,0.85); z-index: 250;">
         <div style="background: var(--container-solid); border-radius: 24px; padding: 20px; width: 90%; max-width: 380px; display: flex; flex-direction: column; gap: 14px; border: var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
             <div class="flex justify-between items-center">
-                <h3 style="font-size: 1.05rem; font-weight: 600;">Send Photo / Video</h3>
+                <h3 style="font-size: 1.05rem; font-weight: 600;">Send Photo</h3>
                 <button id="btn-cancel-media-preview" style="padding: 4px;"><i data-lucide="x" style="width: 22px; height: 22px;"></i></button>
             </div>
             <div id="media-preview-container" style="max-height: 260px; overflow: hidden; border-radius: 16px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);">
                 <!-- Media rendered here -->
             </div>
             <input type="text" id="media-caption-input" placeholder="Add a caption (optional)..." style="margin-bottom: 0;">
-            <button class="btn-primary" id="btn-confirm-send-media" style="margin-top: 0;">Send Media</button>
+            <button class="btn-primary" id="btn-confirm-send-media" style="margin-top: 0;">Send Photo</button>
         </div>
     </div>
 
@@ -1145,6 +1283,57 @@
         <button id="close-lightbox" style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: 20px; color: #fff; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 50%; border: var(--glass-border); backdrop-filter: blur(10px);"><i data-lucide="x" style="width: 24px; height: 24px;"></i></button>
         <div id="lightbox-content" style="max-width: 100%; max-height: 85vh; display: flex; justify-content: center; align-items: center;">
             <!-- Full size image/video -->
+        </div>
+    </div>
+
+    <!-- Incoming Call Modal -->
+    <div id="incoming-call-modal" class="overlay" style="justify-content: center; align-items: center; background: rgba(3, 7, 18, 0.94); z-index: 500; padding: 24px;">
+        <div class="flex-col items-center" style="gap: 18px; text-align: center;">
+            <div class="call-avatar-pulse">
+                <img id="incoming-call-pic" src="" class="profile-pic" style="width: 96px; height: 96px; border-width: 3px;">
+            </div>
+            <div>
+                <h2 id="incoming-call-name" style="font-size: 1.5rem; font-weight: 600;">Caller Name</h2>
+                <p id="incoming-call-type" style="color: var(--primary-color); font-size: 0.95rem; margin-top: 4px; font-weight: 500;">Incoming Call...</p>
+            </div>
+            <div class="flex items-center" style="gap: 40px; margin-top: 28px;">
+                <button id="btn-decline-call" class="call-ctrl-btn end-call" style="width: 64px; height: 64px;" title="Decline">
+                    <i data-lucide="phone-off" style="width: 26px; height: 26px;"></i>
+                </button>
+                <button id="btn-accept-call" class="call-ctrl-btn accept-call" style="width: 64px; height: 64px;" title="Answer">
+                    <i data-lucide="phone" style="width: 26px; height: 26px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Live Call Screen -->
+    <div id="live-call-screen" class="overlay" style="background: #030712; z-index: 490; justify-content: space-between; align-items: center; padding: max(30px, env(safe-area-inset-top)) 20px max(35px, env(safe-area-inset-bottom)) 20px; overflow: hidden;">
+        <!-- Remote Video Stream -->
+        <video id="remote-video" autoplay playsinline class="hidden" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; background: #000;"></video>
+        <!-- Local PiP Video Stream -->
+        <video id="local-video" autoplay playsinline muted class="hidden" style="position: absolute; top: max(24px, env(safe-area-inset-top)); right: 20px; width: 110px; height: 155px; object-fit: cover; border-radius: 16px; border: 2px solid var(--primary-color); z-index: 3; background: #111; box-shadow: 0 8px 25px rgba(0,0,0,0.6); transform: scaleX(-1);"></video>
+
+        <!-- Call Info Header / Audio Avatar -->
+        <div id="call-info-overlay" class="flex-col items-center" style="z-index: 2; text-align: center; margin-top: 50px; gap: 12px;">
+            <div class="call-avatar-pulse" id="active-call-avatar-wrap">
+                <img id="active-call-pic" src="" class="profile-pic" style="width: 96px; height: 96px; border-width: 3px;">
+            </div>
+            <h2 id="active-call-name" style="font-size: 1.5rem; font-weight: 600; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">User Name</h2>
+            <p id="active-call-status" style="color: var(--primary-color); font-size: 0.95rem; font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.8);">Calling...</p>
+        </div>
+
+        <!-- Bottom Call Controls -->
+        <div class="flex items-center justify-center" style="gap: 22px; z-index: 3; margin-bottom: 10px;">
+            <button id="btn-toggle-mic" class="call-ctrl-btn" title="Mute / Unmute">
+                <i data-lucide="mic" id="icon-mic" style="width: 24px; height: 24px;"></i>
+            </button>
+            <button id="btn-end-call" class="call-ctrl-btn end-call" style="width: 64px; height: 64px;" title="End Call">
+                <i data-lucide="phone-off" style="width: 26px; height: 26px;"></i>
+            </button>
+            <button id="btn-toggle-cam" class="call-ctrl-btn" title="Camera On / Off">
+                <i data-lucide="video" id="icon-cam" style="width: 24px; height: 24px;"></i>
+            </button>
         </div>
     </div>
 
@@ -1205,7 +1394,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let firebaseConfig;
     if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -1239,43 +1428,97 @@
     let contactsData = {}; 
     let groupsData = {};
     let activeChatId = null;
+    let activePeerId = null;
     let activeIsGroup = false;
     let replyingTo = null;
     let selectedMsgForAction = null;
     let pendingMediaData = null;
+    let pendingUploads = [];
     
     let mediaRecorder = null;
     let audioChunks = [];
     let recTimerInterval = null;
     let recSeconds = 0;
 
-    let unsubContacts, unsubRequests, unsubMessages, unsubTyping, unsubGroups, unsubUsers;
+    let audioCtx = null;
+    let toastTimeout = null;
+    let lastTypingUpdate = 0;
+
+    let unsubContacts, unsubRequests, unsubMessages, unsubTyping, unsubGroups, unsubUsers, unsubCalls;
+
+    // --- WebRTC Live Call State ---
+    const rtcConfig = {
+        iceServers: [
+            { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }
+        ]
+    };
+    let peerConnection = null;
+    let localStream = null;
+    let remoteStream = null;
+    let currentCallId = null;
+    let currentCallData = null;
+    let unsubCallDoc = null;
+    let unsubCallCandidates = null;
+    let callTimerInterval = null;
+    let callDurationSeconds = 0;
+    let ringtoneInterval = null;
+    let isMicMuted = false;
+    let isCamOff = false;
 
     const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
     const privCol = (colName) => collection(db, 'artifacts', appId, 'users', currentUser.uid, colName);
 
     lucide.createIcons();
 
-    document.getElementById('btn-copy-id').addEventListener('click', () => {
-        const idText = document.getElementById('menu-id').innerText;
-        const tempInput = document.createElement('input');
-        tempInput.value = idText;
+    async function copyToClipboard(text, successMsg = "Copied!", errorMsg = "Failed to copy") {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                showToast(successMsg);
+                return;
+            }
+        } catch (_) {}
+
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        tempInput.style.position = 'fixed';
+        tempInput.style.opacity = '0';
         document.body.appendChild(tempInput);
         tempInput.select();
         try {
             document.execCommand('copy');
-            showToast("TAN ID copied!");
-        } catch(e) {
-            showToast("Failed to copy automatically");
+            showToast(successMsg);
+        } catch (_) {
+            showToast(errorMsg);
         }
         document.body.removeChild(tempInput);
+    }
+
+    async function incrementPeerUnread(peerUid) {
+        if (!peerUid || activeIsGroup) return;
+        const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', peerUid, 'contacts'), currentUser.uid);
+        try {
+            const pDoc = await getDoc(peerContactDoc);
+            if (pDoc.exists()) {
+                await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
+            } else {
+                await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
+            }
+        } catch (err) {
+            console.error("Unread update error", err);
+        }
+    }
+
+    document.getElementById('btn-copy-id').addEventListener('click', () => {
+        const idText = document.getElementById('menu-id').innerText;
+        copyToClipboard(idText, "TAN ID copied!", "Failed to copy automatically");
     });
 
     document.getElementById('btn-chat-options').addEventListener('click', () => {
         document.getElementById('chat-options-menu').classList.toggle('hidden');
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', (e) => {
         const menu = document.getElementById('chat-options-menu');
         if (menu && !menu.classList.contains('hidden') && !e.target.closest('#btn-chat-options') && !e.target.closest('#chat-options-menu')) {
             menu.classList.add('hidden');
@@ -1283,31 +1526,23 @@
     });
 
     document.getElementById('msg-options-modal').addEventListener('click', (e) => {
-        if(e.target.id === 'msg-options-modal') history.back();
+        if (e.target.id === 'msg-options-modal') history.back();
     });
 
     function setChatBackground(color) {
         const chatScreen = document.getElementById('chat-screen');
         const defaultBg = 'rgba(3, 7, 18, 0.96)';
         
-        if (color === 'default' || !color) {
-            chatScreen.style.background = defaultBg;
-        } else {
-            chatScreen.style.background = color;
-        }
+        chatScreen.style.background = (color === 'default' || !color) ? defaultBg : color;
 
         document.querySelectorAll('.bg-option').forEach(btn => {
             const btnColor = btn.getAttribute('data-color');
-            if (btnColor === color || (!color && btnColor === 'default')) {
-                btn.style.borderColor = 'var(--primary-color)';
-            } else {
-                btn.style.borderColor = 'transparent';
-            }
+            btn.style.borderColor = (btnColor === color || (!color && btnColor === 'default')) ? 'var(--primary-color)' : 'transparent';
         });
     }
 
     document.querySelectorAll('.bg-option').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        btn.addEventListener('click', async () => {
             const color = btn.getAttribute('data-color');
             setChatBackground(color);
             if (currentUser && myProfile) {
@@ -1323,7 +1558,7 @@
     chatInput.addEventListener('focus', () => {
         setTimeout(() => {
             const container = document.getElementById('chat-messages');
-            if(container) container.scrollTop = container.scrollHeight;
+            if (container) container.scrollTop = container.scrollHeight;
         }, 300);
     });
 
@@ -1342,12 +1577,7 @@
 
     function openMsgOptions(msg, isMe) {
         selectedMsgForAction = msg;
-        const btnEveryone = document.getElementById('btn-msg-del-everyone');
-        if (isMe) {
-            btnEveryone.style.display = 'flex';
-        } else {
-            btnEveryone.style.display = 'none';
-        }
+        document.getElementById('btn-msg-del-everyone').style.display = isMe ? 'flex' : 'none';
         pushOverlay('msg-options-modal');
     }
 
@@ -1355,26 +1585,15 @@
         history.back();
     });
 
-    // Message Copy Implementation
     document.getElementById('btn-msg-copy').addEventListener('click', () => {
-        if(!selectedMsgForAction) return;
+        if (!selectedMsgForAction) return;
         const textToCopy = selectedMsgForAction.text || selectedMsgForAction.mediaUrl || '';
         history.back();
-        const tempInput = document.createElement('input');
-        tempInput.value = textToCopy;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        try {
-            document.execCommand('copy');
-            showToast("Message copied!");
-        } catch(e) {
-            showToast("Failed to copy message");
-        }
-        document.body.removeChild(tempInput);
+        copyToClipboard(textToCopy, "Message copied!", "Failed to copy message");
     });
 
     document.getElementById('btn-msg-del-me').addEventListener('click', async () => {
-        if(!selectedMsgForAction || !activeChatId) return;
+        if (!selectedMsgForAction || !activeChatId) return;
         const msgId = selectedMsgForAction.id;
         history.back();
         try {
@@ -1389,8 +1608,9 @@
     });
 
     document.getElementById('btn-msg-del-everyone').addEventListener('click', async () => {
-        if(!selectedMsgForAction || !activeChatId) return;
-        const msgId = selectedMsgForAction.id;
+        if (!selectedMsgForAction || !activeChatId) return;
+        const msg = selectedMsgForAction;
+        const msgId = msg.id;
         history.back();
         try {
             await deleteDoc(doc(pubCol(`messages_${activeChatId}`), msgId));
@@ -1405,7 +1625,8 @@
         const t = document.getElementById('toast');
         t.innerText = msg;
         t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
     function showAuthError(msg) {
@@ -1422,24 +1643,29 @@
 
     function playMessageSound() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(audioCtx.destination);
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(520, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0, ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.05);
-            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
-            osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.15);
-        } catch(e){}
+            osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.15);
+        } catch(_) {}
     }
 
     function emojiToSVG(content) {
-        const c = content.substring(0, 2) || '👤';
+        const c = (content || '').substring(0, 2) || '👤';
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="#06121e"/><text x="50" y="55" font-family="Arial, sans-serif" font-size="50" text-anchor="middle" dominant-baseline="central" fill="#22c55e">${c}</text></svg>`;
         return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
     }
@@ -1454,7 +1680,7 @@
 
     function escapeHTML(str) {
         if (!str) return '';
-        return str.replace(/[&<>'"]/g, tag => ({
+        return String(str).replace(/[&<>'"]/g, tag => ({
             '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
         }[tag] || tag));
     }
@@ -1464,11 +1690,7 @@
     history.replaceState({ overlays: [] }, '');
 
     window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.overlays) {
-            overlayStack = e.state.overlays;
-        } else {
-            overlayStack = [];
-        }
+        overlayStack = (e.state && e.state.overlays) ? e.state.overlays : [];
         renderOverlays();
     });
 
@@ -1495,46 +1717,36 @@
         managedOverlays.forEach(id => {
             const el = document.getElementById(id);
             if (overlayStack.includes(id)) {
+                el.classList.add('active');
                 if (id === 'side-menu') {
-                    el.classList.add('active');
                     document.getElementById('menu-backdrop').classList.add('active');
-                } else {
-                    el.classList.add('active');
                 }
-            } else {
-                if (el.classList.contains('active')) {
-                    if (id === 'side-menu') {
-                        el.classList.remove('active');
-                        document.getElementById('menu-backdrop').classList.remove('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
-                    
-                    if (id === 'chat-screen') {
-                        activeChatId = null;
-                        activeIsGroup = false;
-                        cancelRecording();
-                        if(unsubMessages) { unsubMessages(); unsubMessages = null; }
-                        if(unsubTyping) { unsubTyping(); unsubTyping = null; }
-                    }
-                    if (id === 'add-friend-modal') {
-                        document.getElementById('search-result').classList.add('hidden');
-                        document.getElementById('search-uid').value = '';
-                    }
-                    if (id === 'msg-options-modal') {
-                        selectedMsgForAction = null;
-                    }
-                    if (id === 'media-preview-modal') {
-                        pendingMediaData = null;
-                        document.getElementById('media-preview-container').innerHTML = '';
-                        document.getElementById('media-caption-input').value = '';
-                    }
-                    if (id === 'code-snippet-modal') {
-                        document.getElementById('code-snippet-input').value = '';
-                    }
-                    if (id === 'media-lightbox') {
-                        document.getElementById('lightbox-content').innerHTML = '';
-                    }
+            } else if (el.classList.contains('active')) {
+                el.classList.remove('active');
+                if (id === 'side-menu') {
+                    document.getElementById('menu-backdrop').classList.remove('active');
+                }
+                
+                if (id === 'chat-screen') {
+                    activeChatId = null;
+                    activePeerId = null;
+                    activeIsGroup = false;
+                    cancelRecording();
+                    if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+                    if (unsubTyping) { unsubTyping(); unsubTyping = null; }
+                } else if (id === 'add-friend-modal') {
+                    document.getElementById('search-result').classList.add('hidden');
+                    document.getElementById('search-uid').value = '';
+                } else if (id === 'msg-options-modal') {
+                    selectedMsgForAction = null;
+                } else if (id === 'media-preview-modal') {
+                    pendingMediaData = null;
+                    document.getElementById('media-preview-container').innerHTML = '';
+                    document.getElementById('media-caption-input').value = '';
+                } else if (id === 'code-snippet-modal') {
+                    document.getElementById('code-snippet-input').value = '';
+                } else if (id === 'media-lightbox') {
+                    document.getElementById('lightbox-content').innerHTML = '';
                 }
             }
         });
@@ -1552,16 +1764,28 @@
         const isImg = file.type.startsWith('image/');
         const isVid = file.type.startsWith('video/');
 
-        if (!isImg && !isVid) {
-            showToast("Only photos and videos are supported.");
+        if (isVid) {
+            showToast("You can send only file of 1mb");
+            return;
+        }
+
+        if (!isImg) {
+            showToast("Only photos are supported.");
             return;
         }
 
         if (isImg) {
+            openMediaPreview(null, 'image', true);
             const reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onprogress = (evt) => {
+                if (evt.lengthComputable) {
+                    updatePreviewProgress(Math.round((evt.loaded / evt.total) * 70), 'Reading photo...');
+                }
+            };
+            reader.onload = (evt) => {
+                updatePreviewProgress(85, 'Optimizing image...');
                 const img = new Image();
-                img.onload = function() {
+                img.onload = () => {
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
@@ -1583,26 +1807,14 @@
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                    openMediaPreview(compressedBase64, 'image');
+                    openMediaPreview(compressedBase64, 'image', false);
                 };
                 img.src = evt.target.result;
-            };
-            reader.readAsDataURL(file);
-        } else if (isVid) {
-            if (file.size > 100 * 1024 * 1024) {
-                showToast("Video must be under 100 MB to send.");
-                return;
-            }
-            showToast("Processing video...");
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                openMediaPreview(evt.target.result, 'video');
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // Code Snippet Sending Logic
     document.getElementById('btn-code-msg').addEventListener('click', () => {
         pushOverlay('code-snippet-modal');
     });
@@ -1636,75 +1848,170 @@
 
         try {
             await addDoc(pubCol(`messages_${activeChatId}`), payload);
-            if (!activeIsGroup) {
-                const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', activeChatId, 'contacts'), currentUser.uid);
-                try {
-                    const pDoc = await getDoc(peerContactDoc);
-                    if(pDoc.exists()) {
-                        await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
-                    } else {
-                        await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
-                    }
-                } catch(e){}
-            }
+            await incrementPeerUnread(activePeerId);
         } catch (e) {
             console.error(e);
             showToast("Failed to send code snippet");
         }
     });
 
-    function openMediaPreview(dataUrl, type) {
-        pendingMediaData = { url: dataUrl, type: type };
+    function updatePreviewProgress(percent, statusText) {
+        const pctEl = document.getElementById('preview-load-pct');
+        const txtEl = document.getElementById('preview-load-txt');
+        if (pctEl) pctEl.innerText = `${percent}%`;
+        if (txtEl && statusText) txtEl.innerText = statusText;
+    }
+
+    function openMediaPreview(dataUrl, type, isLoading = false) {
         const container = document.getElementById('media-preview-container');
-        if (type === 'image') {
-            container.innerHTML = `<img src="${dataUrl}" style="max-width:100%; max-height:240px; object-fit:contain; border-radius:12px;">`;
-        } else {
-            container.innerHTML = `<video src="${dataUrl}" controls style="max-width:100%; max-height:240px; border-radius:12px;"></video>`;
+        const sendBtn = document.getElementById('btn-confirm-send-media');
+
+        if (!overlayStack.includes('media-preview-modal')) {
+            pushOverlay('media-preview-modal');
         }
-        pushOverlay('media-preview-modal');
+
+        if (isLoading) {
+            pendingMediaData = null;
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+            sendBtn.innerText = 'Preparing Media...';
+            container.innerHTML = `
+                <div style="padding: 45px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div class="upload-spinner"></div>
+                    <div id="preview-load-pct" style="font-size: 0.95rem; font-weight: 600; color: var(--primary-color);">0%</div>
+                    <div id="preview-load-txt" style="font-size: 0.8rem; color: var(--text-muted);">Processing ${type}...</div>
+                </div>
+            `;
+            return;
+        }
+
+        pendingMediaData = { url: dataUrl, type: type };
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.innerText = 'Send Photo';
+
+        container.innerHTML = `<img src="${dataUrl}" style="max-width:100%; max-height:240px; object-fit:contain; border-radius:12px;">`;
     }
 
     document.getElementById('btn-cancel-media-preview').addEventListener('click', () => {
         history.back();
     });
 
+    function createTempUploadBubble(mediaToUpload, caption, replyObj) {
+        const container = document.getElementById('chat-messages');
+        if (!container) return null;
+
+        const tempId = 'temp-upload-' + Date.now();
+        const div = document.createElement('div');
+        div.id = tempId;
+        div.className = 'message msg-me';
+
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const mediaEl = `<img src="${mediaToUpload.url}" class="chat-media-img" style="filter: brightness(0.75);">`;
+
+        let replyHtml = '';
+        if (replyObj) {
+            replyHtml = `
+                <div class="quoted-msg">
+                    <div style="font-weight: 600; margin-bottom: 2px; font-size: 0.75rem; color: #fff;">${escapeHTML(replyObj.senderName)}</div>
+                    <div style="opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; max-width: 60vw;">${escapeHTML(replyObj.text || 'Media')}</div>
+                </div>
+            `;
+        }
+
+        div.innerHTML = `
+            ${replyHtml}
+            <div class="media-wrapper">
+                ${mediaEl}
+                <div class="media-upload-overlay">
+                    <div class="upload-ring">
+                        <svg viewBox="0 0 40 40">
+                            <circle class="ring-bg" cx="20" cy="20" r="18"></circle>
+                            <circle class="ring-progress" id="${tempId}-ring" cx="20" cy="20" r="18"></circle>
+                        </svg>
+                        <span id="${tempId}-pct" style="position: absolute; font-size: 0.65rem; font-weight: 700;">0%</span>
+                    </div>
+                    <span id="${tempId}-label" style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px;">Sending photo...</span>
+                </div>
+            </div>
+            ${caption ? `<div class="msg-content" style="white-space: pre-wrap;">${escapeHTML(caption)}</div>` : ''}
+            <div class="msg-meta">
+                <span class="msg-time">${timeStr}</span>
+                <div class="msg-ticks"><i data-lucide="loader" style="width: 12px; height: 12px;"></i></div>
+            </div>
+        `;
+
+        container.appendChild(div);
+        lucide.createIcons({ root: div });
+        requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+        });
+
+        const circumference = 113;
+        const setProgress = (pctVal, labelText) => {
+            const clamped = Math.min(100, Math.max(0, Math.round(pctVal)));
+            const ring = document.getElementById(`${tempId}-ring`);
+            const pct = document.getElementById(`${tempId}-pct`);
+            const lbl = document.getElementById(`${tempId}-label`);
+            if (ring) ring.style.strokeDashoffset = circumference - (clamped / 100) * circumference;
+            if (pct) pct.innerText = `${clamped}%`;
+            if (lbl && labelText) lbl.innerText = labelText;
+        };
+
+        const uploadItem = {
+            id: tempId,
+            el: div,
+            setProgress,
+            finish: () => {
+                setProgress(100);
+                pendingUploads = pendingUploads.filter(item => item.id !== tempId);
+                setTimeout(() => {
+                    if (div.parentNode) div.remove();
+                }, 180);
+            }
+        };
+
+        pendingUploads.push(uploadItem);
+        return uploadItem;
+    }
+
     document.getElementById('btn-confirm-send-media').addEventListener('click', async () => {
         if (!pendingMediaData || !activeChatId) return;
         const caption = document.getElementById('media-caption-input').value.trim();
         const mediaToUpload = { ...pendingMediaData };
+        const currentChatId = activeChatId;
+        const currentPeerId = activePeerId;
+        const replySnapshot = replyingTo ? { ...replyingTo } : null;
+
         history.back();
 
-        const payload = {
-            senderId: currentUser.uid,
-            text: caption,
-            mediaUrl: mediaToUpload.url,
-            mediaType: mediaToUpload.type,
-            timestamp: Date.now(),
-            status: 'sent'
-        };
-
-        if (replyingTo) {
-            payload.replyTo = replyingTo;
-            replyingTo = null;
-            document.getElementById('reply-preview').classList.add('hidden');
-        }
+        const tempUpload = createTempUploadBubble(mediaToUpload, caption, replySnapshot);
 
         try {
-            await addDoc(pubCol(`messages_${activeChatId}`), payload);
-            if (!activeIsGroup) {
-                const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', activeChatId, 'contacts'), currentUser.uid);
-                try {
-                    const pDoc = await getDoc(peerContactDoc);
-                    if(pDoc.exists()) {
-                        await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
-                    } else {
-                        await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
-                    }
-                } catch(e){}
+            const payload = {
+                senderId: currentUser.uid,
+                text: caption,
+                mediaUrl: mediaToUpload.url,
+                mediaType: mediaToUpload.type,
+                timestamp: Date.now(),
+                status: 'sent'
+            };
+
+            if (replySnapshot) {
+                payload.replyTo = replySnapshot;
+                replyingTo = null;
+                document.getElementById('reply-preview').classList.add('hidden');
             }
+
+            if (tempUpload) tempUpload.setProgress(50);
+            await addDoc(pubCol(`messages_${currentChatId}`), payload);
+
+            if (tempUpload) tempUpload.finish();
+            await incrementPeerUnread(currentPeerId);
         } catch(e) {
-            console.error(e);
-            showToast("Failed to send media");
+            if (tempUpload) tempUpload.finish();
+            console.error("Media upload error:", e);
+            showToast("Failed to send photo");
         }
     });
 
@@ -1792,17 +2099,7 @@
 
                 try {
                     await addDoc(pubCol(`messages_${activeChatId}`), payload);
-                    if (!activeIsGroup) {
-                        const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', activeChatId, 'contacts'), currentUser.uid);
-                        try {
-                            const pDoc = await getDoc(peerContactDoc);
-                            if(pDoc.exists()) {
-                                await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
-                            } else {
-                                await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
-                            }
-                        } catch(e){}
-                    }
+                    await incrementPeerUnread(activePeerId);
                     showToast("Voice message sent! 🎙️");
                 } catch (e) {
                     console.error(e);
@@ -1837,7 +2134,7 @@
         if (e.target.id === 'media-lightbox') history.back();
     });
 
-    const handleAppWakeup = async () => {
+    const handleAppWakeup = () => {
         if (currentUser && activeChatId) {
             const container = document.getElementById('chat-messages');
             if (container) {
@@ -1847,19 +2144,15 @@
     };
 
     document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-            handleAppWakeup();
-        }
+        if (document.visibilityState === "visible") handleAppWakeup();
     });
 
     window.addEventListener("focus", () => {
-        if (document.visibilityState === "visible") {
-            handleAppWakeup();
-        }
+        if (document.visibilityState === "visible") handleAppWakeup();
     });
 
     document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -1983,6 +2276,17 @@
         }
         document.getElementById('splash-screen').classList.remove('active');
     }
+
+    document.getElementById('btn-back-auth').addEventListener('click', async () => {
+        document.getElementById('auth-error').classList.add('hidden');
+        try {
+            await signOut(auth);
+        } catch (e) {
+            console.error("Error returning to login", e);
+            document.getElementById('auth-screen').classList.remove('active');
+            document.getElementById('login-screen').classList.add('active');
+        }
+    });
 
     document.getElementById('btn-save-profile').addEventListener('click', async () => {
         const name = document.getElementById('profile-name').value.trim();
@@ -2121,12 +2425,8 @@
     function updateFullscreenIcon(isFS) {
         const icon = document.getElementById('fullscreen-icon');
         if (icon) {
-            if (isFS) {
-                icon.setAttribute('data-lucide', 'minimize');
-            } else {
-                icon.setAttribute('data-lucide', 'maximize');
-            }
-            lucide.createIcons();
+            icon.setAttribute('data-lucide', isFS ? 'minimize' : 'maximize');
+            lucide.createIcons({ root: document.getElementById('btn-toggle-fullscreen') });
         }
     }
 
@@ -2169,7 +2469,7 @@
 
         unsubRequests = onSnapshot(pubCol('requests'), (snap) => {
             const list = document.getElementById('requests-list');
-            list.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             let count = 0;
 
             snap.docs.forEach(d => {
@@ -2183,7 +2483,7 @@
                         <div class="flex items-center">
                             <img src="${sender.dpUrl}" class="profile-pic">
                             <div class="info">
-                                <div class="name">${sender.name}</div>
+                                <div class="name">${escapeHTML(sender.name)}</div>
                                 <div class="sub">Wants to connect</div>
                             </div>
                         </div>
@@ -2192,25 +2492,382 @@
                             <button class="btn-danger" style="padding: 6px 12px; border-radius:24px; font-weight:600;" onclick="declineRequest('${d.id}')">X</button>
                         </div>
                     `;
-                    list.appendChild(div);
+                    fragment.appendChild(div);
                 }
             });
+
+            list.innerHTML = '';
+            list.appendChild(fragment);
 
             document.getElementById('requests-empty').classList.toggle('hidden', count > 0);
             const badge = document.getElementById('req-badge');
             badge.innerText = count;
             badge.classList.toggle('hidden', count === 0);
         }, (err) => console.error("Invites synchronization error", err));
+
+        unsubCalls = onSnapshot(pubCol('calls'), (snap) => {
+            snap.docs.forEach(d => {
+                const data = d.data();
+                if (data.calleeId === currentUser.uid && data.status === 'ringing' && (Date.now() - data.timestamp < 45000)) {
+                    if (!currentCallId) {
+                        showIncomingCall(d.id, data);
+                    }
+                }
+            });
+        }, (err) => console.error("Calls listener error", err));
     }
 
     function stopAllListeners() {
-        if(unsubContacts) unsubContacts();
-        if(unsubRequests) unsubRequests();
-        if(unsubMessages) unsubMessages();
-        if(unsubTyping) unsubTyping();
-        if(unsubGroups) unsubGroups();
-        if(unsubUsers) unsubUsers();
+        if (unsubContacts) unsubContacts();
+        if (unsubRequests) unsubRequests();
+        if (unsubMessages) unsubMessages();
+        if (unsubTyping) unsubTyping();
+        if (unsubGroups) unsubGroups();
+        if (unsubUsers) unsubUsers();
+        if (unsubCalls) unsubCalls();
     }
+
+    // --- WebRTC Live Call Implementation ---
+    function startRingtone() {
+        stopRingtone();
+        const chime = () => {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.18);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.04);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.45);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.45);
+            } catch (_) {}
+        };
+        chime();
+        ringtoneInterval = setInterval(chime, 1600);
+    }
+
+    function stopRingtone() {
+        if (ringtoneInterval) {
+            clearInterval(ringtoneInterval);
+            ringtoneInterval = null;
+        }
+    }
+
+    function startCallTimer() {
+        clearInterval(callTimerInterval);
+        callDurationSeconds = 0;
+        const statusEl = document.getElementById('active-call-status');
+        callTimerInterval = setInterval(() => {
+            callDurationSeconds++;
+            const mins = String(Math.floor(callDurationSeconds / 60)).padStart(2, '0');
+            const secs = String(callDurationSeconds % 60).padStart(2, '0');
+            if (statusEl) statusEl.innerText = `${mins}:${secs}`;
+        }, 1000);
+    }
+
+    async function startCall(isVideo = false) {
+        if (!currentUser || !activePeerId || activeIsGroup) {
+            return showToast("Calls are available in 1-on-1 chats.");
+        }
+        if (currentCallId) return showToast("Already in a call.");
+
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: isVideo ? { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } : false
+            });
+        } catch (err) {
+            console.error("Media permission error:", err);
+            return showToast(isVideo ? "Camera & Microphone access required." : "Microphone access required.");
+        }
+
+        const peer = usersData[activePeerId] || { name: 'Friend', dpUrl: emojiToSVG('👤') };
+        setupCallUI(peer, isVideo, "Calling...");
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        remoteStream = new MediaStream();
+
+        const remoteVideo = document.getElementById('remote-video');
+        remoteVideo.srcObject = remoteStream;
+
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (event) => {
+            event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+        };
+
+        const callDocRef = doc(pubCol('calls'));
+        currentCallId = callDocRef.id;
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate && currentCallId) {
+                addDoc(pubCol(`calls_${currentCallId}_caller`), event.candidate.toJSON()).catch(() => {});
+            }
+        };
+
+        peerConnection.onconnectionstatechange = () => {
+            if (peerConnection && (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed')) {
+                endCall();
+            }
+        };
+
+        try {
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            await setDoc(callDocRef, {
+                callerId: currentUser.uid,
+                callerName: myProfile?.name || 'User',
+                callerPic: myProfile?.dpUrl || emojiToSVG('👤'),
+                calleeId: activePeerId,
+                type: isVideo ? 'video' : 'audio',
+                status: 'ringing',
+                offer: { type: offer.type, sdp: offer.sdp },
+                timestamp: Date.now()
+            });
+
+            unsubCallDoc = onSnapshot(callDocRef, async (snap) => {
+                const data = snap.data();
+                if (!data) return;
+                if (data.status === 'declined' || data.status === 'ended') {
+                    showToast(data.status === 'declined' ? "Call declined" : "Call ended");
+                    cleanupCall();
+                } else if (data.status === 'accepted' && data.answer && !peerConnection.currentRemoteDescription) {
+                    const rtcAnswer = new RTCSessionDescription(data.answer);
+                    await peerConnection.setRemoteDescription(rtcAnswer);
+                    startCallTimer();
+                    if (isVideo) {
+                        document.getElementById('active-call-avatar-wrap').classList.add('hidden');
+                    }
+                }
+            });
+
+            unsubCallCandidates = onSnapshot(pubCol(`calls_${currentCallId}_callee`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === 'added' && peerConnection) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data())).catch(() => {});
+                    }
+                });
+            });
+        } catch (err) {
+            console.error("Failed to start call:", err);
+            showToast("Could not place call");
+            cleanupCall();
+        }
+    }
+
+    function showIncomingCall(callId, callData) {
+        currentCallId = callId;
+        currentCallData = callData;
+
+        document.getElementById('incoming-call-pic').src = callData.callerPic || emojiToSVG('👤');
+        document.getElementById('incoming-call-name').innerText = callData.callerName || 'Unknown';
+        document.getElementById('incoming-call-type').innerText = callData.type === 'video' ? 'Incoming Video Call...' : 'Incoming Voice Call...';
+        document.getElementById('incoming-call-modal').classList.add('active');
+        startRingtone();
+
+        if (unsubCallDoc) unsubCallDoc();
+        unsubCallDoc = onSnapshot(doc(pubCol('calls'), callId), (snap) => {
+            const data = snap.data();
+            if (!data || data.status === 'ended' || data.status === 'declined') {
+                cleanupCall();
+            }
+        });
+    }
+
+    async function acceptIncomingCall() {
+        stopRingtone();
+        document.getElementById('incoming-call-modal').classList.remove('active');
+        if (!currentCallId || !currentCallData) return;
+
+        const isVideo = currentCallData.type === 'video';
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: isVideo ? { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } : false
+            });
+        } catch (err) {
+            console.error("Media permission error:", err);
+            showToast("Microphone/Camera permission denied.");
+            await endCall('declined');
+            return;
+        }
+
+        setupCallUI({
+            name: currentCallData.callerName || 'Caller',
+            dpUrl: currentCallData.callerPic || emojiToSVG('👤')
+        }, isVideo, "Connecting...");
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        remoteStream = new MediaStream();
+
+        const remoteVideo = document.getElementById('remote-video');
+        remoteVideo.srcObject = remoteStream;
+
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (event) => {
+            event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+        };
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate && currentCallId) {
+                addDoc(pubCol(`calls_${currentCallId}_callee`), event.candidate.toJSON()).catch(() => {});
+            }
+        };
+
+        peerConnection.onconnectionstatechange = () => {
+            if (peerConnection && (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed')) {
+                endCall();
+            }
+        };
+
+        try {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(currentCallData.offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
+            await updateDoc(doc(pubCol('calls'), currentCallId), {
+                answer: { type: answer.type, sdp: answer.sdp },
+                status: 'accepted'
+            });
+
+            startCallTimer();
+            if (isVideo) {
+                document.getElementById('active-call-avatar-wrap').classList.add('hidden');
+            }
+
+            unsubCallCandidates = onSnapshot(pubCol(`calls_${currentCallId}_caller`), (snap) => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === 'added' && peerConnection) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data())).catch(() => {});
+                    }
+                });
+            });
+        } catch (err) {
+            console.error("Error accepting call:", err);
+            showToast("Failed to connect call");
+            cleanupCall();
+        }
+    }
+
+    function setupCallUI(peer, isVideo, initialStatus) {
+        isMicMuted = false;
+        isCamOff = !isVideo;
+
+        document.getElementById('active-call-pic').src = peer.dpUrl;
+        document.getElementById('active-call-name').innerText = peer.name;
+        document.getElementById('active-call-status').innerText = initialStatus;
+        document.getElementById('active-call-avatar-wrap').classList.remove('hidden');
+
+        const localVideo = document.getElementById('local-video');
+        const remoteVideo = document.getElementById('remote-video');
+        const camBtn = document.getElementById('btn-toggle-cam');
+        const micBtn = document.getElementById('btn-toggle-mic');
+
+        micBtn.classList.remove('off');
+        camBtn.classList.toggle('hidden', !isVideo);
+        camBtn.classList.remove('off');
+
+        if (isVideo) {
+            localVideo.srcObject = localStream;
+            localVideo.classList.remove('hidden');
+            remoteVideo.classList.remove('hidden');
+        } else {
+            localVideo.srcObject = null;
+            localVideo.classList.add('hidden');
+            remoteVideo.classList.add('hidden');
+        }
+
+        document.getElementById('live-call-screen').classList.add('active');
+        lucide.createIcons({ root: document.getElementById('live-call-screen') });
+    }
+
+    async function endCall(statusOverride = 'ended') {
+        const callIdToClose = currentCallId;
+        cleanupCall();
+        if (callIdToClose) {
+            try {
+                await updateDoc(doc(pubCol('calls'), callIdToClose), { status: statusOverride });
+            } catch (_) {}
+        }
+    }
+
+    function cleanupCall() {
+        stopRingtone();
+        clearInterval(callTimerInterval);
+        callTimerInterval = null;
+
+        if (unsubCallDoc) { unsubCallDoc(); unsubCallDoc = null; }
+        if (unsubCallCandidates) { unsubCallCandidates(); unsubCallCandidates = null; }
+
+        if (peerConnection) {
+            peerConnection.ontrack = null;
+            peerConnection.onicecandidate = null;
+            peerConnection.onconnectionstatechange = null;
+            peerConnection.close();
+            peerConnection = null;
+        }
+
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+
+        remoteStream = null;
+        currentCallId = null;
+        currentCallData = null;
+
+        const localVid = document.getElementById('local-video');
+        const remoteVid = document.getElementById('remote-video');
+        if (localVid) localVid.srcObject = null;
+        if (remoteVid) remoteVid.srcObject = null;
+
+        document.getElementById('incoming-call-modal').classList.remove('active');
+        document.getElementById('live-call-screen').classList.remove('active');
+    }
+
+    document.getElementById('btn-audio-call').addEventListener('click', () => startCall(false));
+    document.getElementById('btn-video-call').addEventListener('click', () => startCall(true));
+    document.getElementById('btn-accept-call').addEventListener('click', acceptIncomingCall);
+    document.getElementById('btn-decline-call').addEventListener('click', () => endCall('declined'));
+    document.getElementById('btn-end-call').addEventListener('click', () => endCall('ended'));
+
+    document.getElementById('btn-toggle-mic').addEventListener('click', () => {
+        if (!localStream) return;
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (!audioTrack) return;
+        isMicMuted = !isMicMuted;
+        audioTrack.enabled = !isMicMuted;
+        const btn = document.getElementById('btn-toggle-mic');
+        const icon = document.getElementById('icon-mic');
+        btn.classList.toggle('off', isMicMuted);
+        if (icon) {
+            icon.setAttribute('data-lucide', isMicMuted ? 'mic-off' : 'mic');
+            lucide.createIcons({ root: btn });
+        }
+    });
+
+    document.getElementById('btn-toggle-cam').addEventListener('click', () => {
+        if (!localStream) return;
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (!videoTrack) return;
+        isCamOff = !isCamOff;
+        videoTrack.enabled = !isCamOff;
+        const btn = document.getElementById('btn-toggle-cam');
+        const icon = document.getElementById('icon-cam');
+        btn.classList.toggle('off', isCamOff);
+        if (icon) {
+            icon.setAttribute('data-lucide', isCamOff ? 'video-off' : 'video');
+            lucide.createIcons({ root: btn });
+        }
+    });
 
     document.getElementById('btn-search-user').addEventListener('click', () => {
         const query = document.getElementById('search-uid').value.trim().toUpperCase();
@@ -2238,7 +2895,7 @@
     });
 
     async function sendRequest(targetUid) {
-        if(contactsData[targetUid]) return showToast("Already friends!");
+        if (contactsData[targetUid]) return showToast("Already friends!");
         try {
             await addDoc(pubCol('requests'), {
                 fromUid: currentUser.uid,
@@ -2280,15 +2937,18 @@
 
     function renderGroupMemberSelection() {
         const list = document.getElementById('group-members-list');
-        list.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        let count = 0;
+
         for (const uid in contactsData) {
             const peer = usersData[uid];
             if (!peer) continue;
+            count++;
             const div = document.createElement('div');
             div.className = 'selectable-item';
             div.innerHTML = `
                 <img src="${peer.dpUrl}" class="profile-pic" style="margin-right: 12px; width: 36px; height: 36px;">
-                <span>${peer.name}</span>
+                <span>${escapeHTML(peer.name)}</span>
                 <div class="checkbox"></div>
             `;
             div.onclick = () => {
@@ -2301,10 +2961,14 @@
                     div.classList.add('selected');
                 }
             };
-            list.appendChild(div);
+            fragment.appendChild(div);
         }
-        if(Object.keys(contactsData).length === 0) {
+
+        list.innerHTML = '';
+        if (count === 0) {
             list.innerHTML = '<p style="color: var(--text-muted); text-align:center; margin-top: 20px;">No friends to add.</p>';
+        } else {
+            list.appendChild(fragment);
         }
     }
 
@@ -2341,21 +3005,20 @@
         document.getElementById('edit-group-preview').src = group.dpUrl;
 
         const list = document.getElementById('edit-group-add-members-list');
-        list.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         let canAddAnyone = false;
 
         for (const uid in contactsData) {
             if (group.members.includes(uid)) continue;
-
-            canAddAnyone = true;
             const peer = usersData[uid];
             if (!peer) continue;
 
+            canAddAnyone = true;
             const div = document.createElement('div');
             div.className = 'selectable-item';
             div.innerHTML = `
                 <img src="${peer.dpUrl}" class="profile-pic" style="margin-right: 12px; width: 36px; height: 36px;">
-                <span>${peer.name}</span>
+                <span>${escapeHTML(peer.name)}</span>
                 <div class="checkbox"></div>
             `;
             div.onclick = () => {
@@ -2368,11 +3031,14 @@
                     div.classList.add('selected');
                 }
             };
-            list.appendChild(div);
+            fragment.appendChild(div);
         }
 
+        list.innerHTML = '';
         if (!canAddAnyone) {
             list.innerHTML = '<p style="color: var(--text-muted); text-align:center; margin-top: 20px;">All friends are already in this group.</p>';
+        } else {
+            list.appendChild(fragment);
         }
 
         pushOverlay('edit-group-modal');
@@ -2420,7 +3086,7 @@
 
     function renderContacts() {
         const list = document.getElementById('contacts-list');
-        list.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         let count = 0;
 
         for (const uid in contactsData) {
@@ -2434,12 +3100,12 @@
             div.innerHTML = `
                 <img src="${peer.dpUrl}" class="profile-pic">
                 <div class="info">
-                    <div class="name">${peer.name}</div>
+                    <div class="name">${escapeHTML(peer.name)}</div>
                     <div class="sub">Tap to chat</div>
                 </div>
                 ${contactInfo.unread > 0 ? `<div class="unread-badge">${contactInfo.unread}</div>` : ''}
             `;
-            list.appendChild(div);
+            fragment.appendChild(div);
         }
 
         for (const groupId in groupsData) {
@@ -2451,20 +3117,22 @@
             div.innerHTML = `
                 <img src="${group.dpUrl}" class="profile-pic">
                 <div class="info">
-                    <div class="name">${group.name}</div>
+                    <div class="name">${escapeHTML(group.name)}</div>
                     <div class="sub">${group.members.length} members</div>
                 </div>
             `;
-            list.appendChild(div);
+            fragment.appendChild(div);
         }
 
+        list.innerHTML = '';
+        list.appendChild(fragment);
         document.getElementById('contacts-empty').classList.toggle('hidden', count > 0);
-        lucide.createIcons();
     }
 
     function openChat(id, entity, isGroup = false) {
         if (!currentUser) return;
         activeIsGroup = isGroup;
+        activePeerId = isGroup ? null : id;
         
         replyingTo = null;
         document.getElementById('reply-preview').classList.add('hidden');
@@ -2472,10 +3140,14 @@
         if (isGroup) {
             activeChatId = id;
             document.getElementById('btn-group-info').classList.remove('hidden');
+            document.getElementById('btn-audio-call').classList.add('hidden');
+            document.getElementById('btn-video-call').classList.add('hidden');
         } else {
             activeChatId = getChatId(currentUser.uid, id);
             document.getElementById('btn-group-info').classList.add('hidden');
-            updateDoc(doc(privCol('contacts'), id), { unread: 0 }).catch(()=>{});
+            document.getElementById('btn-audio-call').classList.remove('hidden');
+            document.getElementById('btn-video-call').classList.remove('hidden');
+            updateDoc(doc(privCol('contacts'), id), { unread: 0 }).catch(() => {});
         }
 
         document.getElementById('chat-user-name').innerText = entity.name;
@@ -2499,16 +3171,16 @@
             msgs.sort((a, b) => a.timestamp - b.timestamp);
             
             const container = document.getElementById('chat-messages');
-            container.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
             msgs.forEach(msg => {
-                if(msg.timestamp < chatClearedAt) return;
-                if(msg.deletedBy && msg.deletedBy.includes(currentUser.uid)) return;
+                if (msg.timestamp < chatClearedAt) return;
+                if (msg.deletedBy && msg.deletedBy.includes(currentUser.uid)) return;
 
                 const isMe = msg.senderId === currentUser.uid;
                 
                 if (!isMe && msg.status !== 'read' && !isGroup) {
-                    updateDoc(doc(messagesCol, msg.id), { status: 'read' }).catch(()=>{});
+                    updateDoc(doc(messagesCol, msg.id), { status: 'read' }).catch(() => {});
                 }
 
                 const div = document.createElement('div');
@@ -2517,7 +3189,7 @@
                 let senderHtml = '';
                 if (isGroup && !isMe) {
                     const sender = usersData[msg.senderId] || { name: 'Unknown' };
-                    senderHtml = `<span class="msg-sender-name">${sender.name}</span>`;
+                    senderHtml = `<span class="msg-sender-name">${escapeHTML(sender.name)}</span>`;
                 }
 
                 const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -2533,10 +3205,11 @@
 
                 let replyHtml = '';
                 if (msg.replyTo) {
+                    const fallbackText = msg.mediaUrl ? (msg.mediaType === 'audio' ? '🎙️ Voice Message' : 'Media') : '';
                     replyHtml = `
                         <div class="quoted-msg">
-                            <div style="font-weight: 600; margin-bottom: 2px; font-size: 0.75rem; ${isMe ? 'color: #fff;' : 'color: var(--primary-color);'}">${msg.replyTo.senderName}</div>
-                            <div style="opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; max-width: 60vw;">${msg.replyTo.text || (msg.mediaUrl ? (msg.mediaType === 'audio' ? '🎙️ Voice Message' : 'Media') : '')}</div>
+                            <div style="font-weight: 600; margin-bottom: 2px; font-size: 0.75rem; ${isMe ? 'color: #fff;' : 'color: var(--primary-color);'}">${escapeHTML(msg.replyTo.senderName)}</div>
+                            <div style="opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; max-width: 60vw;">${escapeHTML(msg.replyTo.text || fallbackText)}</div>
                         </div>
                     `;
                 }
@@ -2544,11 +3217,9 @@
                 let mediaHtml = '';
                 if (msg.mediaUrl) {
                     if (msg.mediaType === 'image') {
-                        mediaHtml = `<img src="${msg.mediaUrl}" class="chat-media-img" onclick="openLightbox('${msg.mediaUrl}', 'image')">`;
-                    } else if (msg.mediaType === 'video') {
-                        mediaHtml = `<video src="${msg.mediaUrl}" controls class="chat-media-video"></video>`;
+                        mediaHtml = `<img src="${msg.mediaUrl}" class="chat-media-img" loading="lazy" onclick="openLightbox('${msg.mediaUrl}', 'image')">`;
                     } else if (msg.mediaType === 'audio') {
-                        mediaHtml = `<audio src="${msg.mediaUrl}" controls class="chat-media-audio"></audio>`;
+                        mediaHtml = `<audio src="${msg.mediaUrl}" controls preload="metadata" class="chat-media-audio"></audio>`;
                     }
                 }
 
@@ -2581,30 +3252,18 @@
                     </div>
                 `;
 
-                // Attach copy listener specifically for code blocks inside message
                 if (msg.isCode) {
                     const copyBtn = div.querySelector('.copy-code-btn');
                     if (copyBtn) {
                         copyBtn.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            const tempInput = document.createElement('textarea');
-                            tempInput.value = msg.text;
-                            document.body.appendChild(tempInput);
-                            tempInput.select();
-                            try {
-                                document.execCommand('copy');
-                                showToast("Code copied!");
-                            } catch(err) {
-                                showToast("Failed to copy code.");
-                            }
-                            document.body.removeChild(tempInput);
+                            copyToClipboard(msg.text, "Code copied!", "Failed to copy code.");
                         });
                         copyBtn.addEventListener('touchstart', (e) => e.stopPropagation(), {passive: true});
                         copyBtn.addEventListener('touchend', (e) => e.stopPropagation());
                     }
                 }
                 
-                // Touch swipe, double tap & longpress adjustments
                 let pressTimer;
                 div.addEventListener('touchstart', e => {
                     div.dataset.startX = e.changedTouches[0].screenX;
@@ -2618,8 +3277,8 @@
                 
                 div.addEventListener('touchmove', e => {
                     clearTimeout(pressTimer);
-                    let startX = parseFloat(div.dataset.startX);
-                    let diff = e.changedTouches[0].screenX - startX;
+                    const startX = parseFloat(div.dataset.startX);
+                    const diff = e.changedTouches[0].screenX - startX;
                     if (diff > 0 && diff < 60) {
                         div.style.transform = `translateX(${diff}px)`;
                     }
@@ -2629,7 +3288,7 @@
                     clearTimeout(pressTimer);
                     div.style.transition = 'transform 0.3s ease';
                     div.style.transform = 'translateX(0)';
-                    let startX = parseFloat(div.dataset.startX);
+                    const startX = parseFloat(div.dataset.startX);
                     
                     if (e.changedTouches[0].screenX - startX > 40) {
                         const senderName = isMe ? (myProfile ? myProfile.name : 'You') : (usersData[msg.senderId]?.name || 'Unknown');
@@ -2650,9 +3309,14 @@
                     setReplyTo(msg.id, previewStr, senderName);
                 };
 
-                container.appendChild(div);
+                fragment.appendChild(div);
             });
             
+            container.innerHTML = '';
+            container.appendChild(fragment);
+            pendingUploads.forEach(item => {
+                if (item.el) container.appendChild(item.el);
+            });
             lucide.createIcons({ root: container });
             
             if (msgs.length > previousMsgCount && previousMsgCount > 0) {
@@ -2663,16 +3327,17 @@
             }
             previousMsgCount = msgs.length;
 
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 container.scrollTop = container.scrollHeight;
-            }, 10);
+            });
         }, (err) => console.error("Message sync error", err));
 
         unsubTyping = onSnapshot(typingCol, (snap) => {
-            let typingNames = [];
+            const typingNames = [];
+            const now = Date.now();
             snap.docs.forEach(d => {
                 const data = d.data();
-                if(data.uid !== currentUser.uid && (Date.now() - data.time < 3000)) {
+                if (data.uid !== currentUser.uid && (now - data.time < 3000)) {
                     typingNames.push(usersData[data.uid]?.name || 'Someone');
                 }
             });
@@ -2686,16 +3351,24 @@
         }, (err) => console.error("Typing notification state error", err));
 
         document.getElementById('btn-send-msg').onclick = () => sendMessage(id, isGroup);
-        document.getElementById('chat-input').onkeypress = (e) => {
-            if(e.key === 'Enter') sendMessage(id, isGroup);
-            else {
-                setDoc(doc(typingCol, currentUser.uid), { uid: currentUser.uid, time: Date.now() });
+        
+        const chatInputEl = document.getElementById('chat-input');
+        chatInputEl.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage(id, isGroup);
+            } else {
+                const now = Date.now();
+                if (now - lastTypingUpdate > 1500) {
+                    lastTypingUpdate = now;
+                    setDoc(doc(typingCol, currentUser.uid), { uid: currentUser.uid, time: now }).catch(() => {});
+                }
             }
         };
         
         document.getElementById('btn-clear-chat-me').onclick = () => {
             if (!isGroup) {
-                updateDoc(doc(privCol('contacts'), id), { clearedAt: Date.now() });
+                updateDoc(doc(privCol('contacts'), id), { clearedAt: Date.now() }).catch(() => {});
             }
             showToast("Chat cleared for you");
             document.getElementById('chat-options-menu').classList.add('hidden');
@@ -2706,9 +3379,7 @@
             showToast("Clearing chat...");
             try {
                 const msgsSnap = await getDocs(pubCol(`messages_${activeChatId}`));
-                msgsSnap.forEach((d) => {
-                    deleteDoc(d.ref).catch(e => console.error(e));
-                });
+                await Promise.all(msgsSnap.docs.map(d => deleteDoc(d.ref)));
                 showToast("Chat cleared for everyone");
             } catch(e) {
                 console.error("Error clearing chat", e);
@@ -2739,17 +3410,8 @@
 
         try {
             await addDoc(pubCol(`messages_${activeChatId}`), payload);
-            
             if (!isGroup) {
-                const peerContactDoc = doc(collection(db, 'artifacts', appId, 'users', id, 'contacts'), currentUser.uid);
-                try {
-                    const pDoc = await getDoc(peerContactDoc);
-                    if(pDoc.exists()) {
-                        await updateDoc(peerContactDoc, { unread: (pDoc.data().unread || 0) + 1 });
-                    } else {
-                        await setDoc(peerContactDoc, { addedAt: Date.now(), unread: 1, clearedAt: 0 });
-                    }
-                } catch(err) { console.error("Unread update error", err); }
+                await incrementPeerUnread(id);
             }
         } catch(e) { console.error(e); }
     }
